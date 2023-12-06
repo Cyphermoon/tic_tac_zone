@@ -24,6 +24,11 @@ const config: Config = {
       }
     },
   },
-  plugins: [],
+  plugins: [
+    require("tailwindcss-radix")({
+      variantPrefix: "rdx",
+    }),
+    require("tailwindcss-animate"),
+  ],
 }
 export default config

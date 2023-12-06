@@ -1,15 +1,17 @@
 import Logo from "./Logo"
 
-interface Props{
+
+interface Props {
     children: React.ReactNode
 }
 
-const Navbar = ({children}: Props) => {
-    return(
-        <nav className="flex justify-between">
-            <Logo/>
+const Navbar = ({ children }: Props) => {
 
-            <ul className="flex items-center space-x-6">
+    return (
+        <nav className="flex justify-between items-center">
+            <Logo />
+
+            <ul className="flex items-center space-x-4 lg:space-x-8 flex-row">
                 {children}
             </ul>
         </nav>

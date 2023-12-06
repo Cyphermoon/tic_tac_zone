@@ -8,7 +8,7 @@ interface Props {
 const Container = ({ className = "", children, as }: Props) => {
     const Elem = (as || "div") as any
     return (
-        <Elem className={`container max-w-7xl mx-auto ${className}`}>
+        <Elem className={`container max-w-7xl mx-auto ${className} px-4`}>
             {children}
         </Elem>
     )
