@@ -2,11 +2,111 @@
 @tailwind components;
 @tailwind utilities;
 
-.hide-scrollbar {
-    -ms-overflow-style: none;  /* Internet Explorer 10+ */
-    scrollbar-width: none;  /* Firefox */
+@layer utilities{
+
+  .hide-scrollbar {
+      -ms-overflow-style: none;  /* Internet Explorer 10+ */
+      scrollbar-width: none;  /* Firefox */
+    }
+    .hide-scrollbar::-webkit-scrollbar { 
+      display: none;  /* Safari and Chrome */
+    }
+}
+
+
+@layer base {
+    :root{
+      --mark-size: 6.5px;
+      --cell-size: 60px;
+      }
+     
+    /*Hidding appropriate borders*/
+  .cell:nth-child(1),
+  .cell:nth-child(2),
+  .cell:nth-child(3){
+    border-top: none;
   }
-  .hide-scrollbar::-webkit-scrollbar { 
-    display: none;  /* Safari and Chrome */
+
+  .cell:nth-child(3n + 1){
+    border-left: none;
+
   }
+
+  .cell:nth-child(3n + 3){
+    border-right: none;
+  }
+
+  .cell:nth-child(7),
+  .cell:nth-child(8),
+  .cell:nth-child(9){
+    border-bottom: none;
+  }
+
+    /* Styling x markers  */
+  [data-boxtype="x"]::before,
+  [data-boxtype="x"]::after {
+    content: "";
+    position: absolute;
+    width: var(--mark-size);
+    height: calc(var(--mark-size) * 9);
+    border-radius: 20%;
+    font-size: 3rem;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    scale: 1 0;
+    background-color: theme("colors.secondary");
+    animation: stretch 500ms ease-out forwards;
+  }
+
+  [data-boxtype="x"]::before{
+    rotate : 45deg;
+  }
+
+  [data-boxtype="x"]::after{
+    rotate: -45deg;
+    animation-delay: 500ms;
+  }
+
+  /* Styling o markers  */
+  [data-boxtype="o"]::before,
+  [data-boxtype="o"]::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    }
+
+  [data-boxtype="o"]::before{
+    width: var(--cell-size);
+    height: var(--cell-size);
+    background-color: theme("colors.secondary");
+    scale: 1 0;
+    transform-origin: center center;
+    animation: stretch 600ms linear forwards;
+  }
+
+  [data-boxtype="o"]::after{
+    width: calc(var(--cell-size) * 0.8);
+    height: calc(var(--cell-size) * 0.8);
+    background-color: theme("colors.card");
+  }
+
+  :is(.cell[data-boxtype="x"], .cell[data-boxtype="o"]) {
+      cursor: not-allowed;
+  }
+
+  @keyframes stretch {
+    from{
+      scale: 1 0;
+    }
+    to{
+      scale: 1 1;
+    }
+  }
+
+}
+
 

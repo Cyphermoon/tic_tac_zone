@@ -20,7 +20,8 @@ const config: Config = {
       colors:{
         accent: "#F41F4E",
         secondary: "#494949",
-        primary: "#FBFBFB"
+        primary: "#FBFBFB",
+        card: "#EEEEEE"
       }
     },
   },

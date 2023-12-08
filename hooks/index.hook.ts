@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export const useModal = (initialState: boolean | undefined) => {
+export function useModal (initialState: boolean | undefined) {
     const [isOpen, setIsOpen] = useState(initialState);
 
     const openModal = () => {
@@ -13,3 +13,7 @@ export const useModal = (initialState: boolean | undefined) => {
 
     return { isOpen, openModal, closeModal };
 };
+
+export function isPlural (n: number) {
+    return n > 1
+}

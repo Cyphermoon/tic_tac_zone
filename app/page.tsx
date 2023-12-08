@@ -1,4 +1,7 @@
 "use client";
+import GameBoard from "@/components/Home/GameBoard";
+import PlayerScore from "@/components/Home/PlayerScore";
+import ScoreBoard from "@/components/Home/ScoreBoard";
 import Button from "@/components/common/Button";
 import Container from "@/components/common/Container";
 import NavItem from "@/components/common/NavItem";
@@ -16,6 +19,7 @@ export default function Home() {
   return (
     <Container as="main" className="pt-4">
       <Navbar>
+
         <NavItem>
           <Button
             variant="muted"
@@ -41,6 +45,28 @@ export default function Home() {
         </NavItem>
 
       </Navbar>
+
+      <PlayerScore name="Cypher Moon" id="cypher-moon" />
+
+      <div className="mt-10 flex flex-col lg:flex-row-reverse justify-between items-start space-y-10 lg:space-y-0">
+        <GameBoard />
+
+        <ScoreBoard
+          rounds={10}
+          draws={5}
+          player1={{
+            id: "cypher-moon",
+            name: "Cypher Moon",
+            score: 5
+          }}
+          player2={{
+            id: "john-doe",
+            name: "John Doe",
+            score: 3
+          }}
+          bestOf={3}
+        />
+      </div>
 
       {isOpen &&
         <GameInfoDialog
