@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+// Todo: separate hook from util
+
 export function useModal (initialState: boolean | undefined) {
     const [isOpen, setIsOpen] = useState(initialState);
 
@@ -16,4 +18,18 @@ export function useModal (initialState: boolean | undefined) {
 
 export function isPlural (n: number) {
     return n > 1
+}
+
+export function sanitizePercentage(percentage: number) {
+    const isNegativeOrNan = !Number.isFinite(+percentage) || percentage < 0
+    const isHigh = percentage > 100
+
+    if (isNegativeOrNan) {
+        return 0
+    } else if (isHigh) {
+        return 100
+    } else {
+        return percentage
+    }
+
 }

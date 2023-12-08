@@ -2,73 +2,100 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities{
+@layer utilities {
 
   .hide-scrollbar {
-      -ms-overflow-style: none;  /* Internet Explorer 10+ */
-      scrollbar-width: none;  /* Firefox */
-    }
-    .hide-scrollbar::-webkit-scrollbar { 
-      display: none;  /* Safari and Chrome */
-    }
+    -ms-overflow-style: none;
+    /* Internet Explorer 10+ */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+    /* Safari and Chrome */
+  }
 }
 
 
 @layer base {
-    :root{
-      --mark-size: 6.5px;
-      --cell-size: 60px;
-      }
-     
-    /*Hidding appropriate borders*/
+  :root {
+    --mark-size: 6.5px;
+    --cell-size: 60px;
+  }
+
+  /*Hidding appropriate borders*/
   .cell:nth-child(1),
   .cell:nth-child(2),
-  .cell:nth-child(3){
+  .cell:nth-child(3) {
     border-top: none;
   }
 
-  .cell:nth-child(3n + 1){
+  .cell:nth-child(3n + 1) {
     border-left: none;
 
   }
 
-  .cell:nth-child(3n + 3){
+  .cell:nth-child(3n + 3) {
     border-right: none;
   }
 
   .cell:nth-child(7),
   .cell:nth-child(8),
-  .cell:nth-child(9){
+  .cell:nth-child(9) {
     border-bottom: none;
   }
 
-    /* Styling x markers  */
-  [data-boxtype="x"]::before,
-  [data-boxtype="x"]::after {
+  /* Styling x markers  */
+
+  [data-currentmarker="x"] .cell:not([data-boxtype="x"], [data-boxtype="o"]):hover::before,
+  [data-currentmarker="x"] .cell:not([data-boxtype="x"], [data-boxtype="o"]):hover::after,
+  .cell[data-boxtype="x"]::before,
+  .cell[data-boxtype="x"]::after {
     content: "";
     position: absolute;
     width: var(--mark-size);
     height: calc(var(--mark-size) * 9);
     border-radius: 20%;
-    font-size: 3rem;
     top: 50%;
     left: 50%;
     translate: -50% -50%;
+    transition: background-color 200ms ease-in;
+
+  }
+
+  .cell[data-boxtype="x"]::before,
+  .cell[data-boxtype="x"]::after {
     scale: 1 0;
     background-color: theme("colors.secondary");
     animation: stretch 500ms ease-out forwards;
   }
 
-  [data-boxtype="x"]::before{
-    rotate : 45deg;
+  /****** Ghost x marker on hover******* */
+  [data-currentmarker="x"] .cell:not([data-boxtype="x"], [data-boxtype="o"]):hover::before,
+  [data-currentmarker="x"] .cell:not([data-boxtype="x"], [data-boxtype="o"]):hover::after {
+
+    scale: 1 1;
+    background-color: theme("colors.secondary");
+    opacity: .5;
   }
 
-  [data-boxtype="x"]::after{
+  [data-currentmarker="x"] .cell:not([data-boxtype="x"], [data-boxtype="o"]):hover::before,
+  .cell[data-boxtype="x"]::before {
+    rotate: 45deg;
+  }
+
+  [data-currentmarker="x"] .cell:not([data-boxtype="x"], [data-boxtype="o"]):hover::after,
+  .cell[data-boxtype="x"]::after {
     rotate: -45deg;
     animation-delay: 500ms;
   }
 
+
+
   /* Styling o markers  */
+  [data-currentmarker="o"] .cell:not([data-boxtype="x"], [data-boxtype="o"]):hover::before,
+  [data-currentmarker="o"] .cell:not([data-boxtype="x"], [data-boxtype="o"]):hover::after,
   [data-boxtype="o"]::before,
   [data-boxtype="o"]::after {
     content: "";
@@ -77,9 +104,11 @@
     top: 50%;
     left: 50%;
     translate: -50% -50%;
-    }
+    transition: background-color 200ms ease-in;
+  }
 
-  [data-boxtype="o"]::before{
+  [data-currentmarker="o"] .cell:not([data-boxtype="x"], [data-boxtype="o"]):hover::before,
+  [data-boxtype="o"]::before {
     width: var(--cell-size);
     height: var(--cell-size);
     background-color: theme("colors.secondary");
@@ -88,25 +117,46 @@
     animation: stretch 600ms linear forwards;
   }
 
-  [data-boxtype="o"]::after{
+  [data-currentmarker="o"] .cell:not([data-boxtype="x"], [data-boxtype="o"]):hover::after,
+  [data-boxtype="o"]::after {
     width: calc(var(--cell-size) * 0.8);
     height: calc(var(--cell-size) * 0.8);
     background-color: theme("colors.card");
   }
 
+  /****** Ghost o marker on hover******* */
+
+  [data-currentmarker="o"] .cell:not([data-boxtype="x"], [data-boxtype="o"]):hover::before,
+  [data-currentmarker="o"] .cell:not([data-boxtype="x"], [data-boxtype="o"]):hover::after {
+    animation: none;
+    scale: 1 1;
+    background-color: theme("colors.secondary");
+  }
+
+  [data-currentmarker="o"] .cell:not([data-boxtype="x"], [data-boxtype="o"]):hover::before {
+    opacity: .5;
+
+  }
+
+
+  [data-currentmarker="o"] .cell:not([data-boxtype="x"], [data-boxtype="o"]):hover::after {
+    background-color: theme("colors.card");
+  }
+
+  /* Styling disabled cells */
+
   :is(.cell[data-boxtype="x"], .cell[data-boxtype="o"]) {
-      cursor: not-allowed;
+    cursor: not-allowed;
   }
 
   @keyframes stretch {
-    from{
+    from {
       scale: 1 0;
     }
-    to{
+
+    to {
       scale: 1 1;
     }
   }
 
 }
-
-

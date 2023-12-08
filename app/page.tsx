@@ -1,5 +1,5 @@
 "use client";
-import GameBoard from "@/components/Home/GameBoard";
+import TicTacToeBoard from "@/components/Home/TicTacToeBoard";
 import PlayerScore from "@/components/Home/PlayerScore";
 import ScoreBoard from "@/components/Home/ScoreBoard";
 import Button from "@/components/common/Button";
@@ -46,10 +46,10 @@ export default function Home() {
 
       </Navbar>
 
-      <PlayerScore name="Cypher Moon" id="cypher-moon" />
+      <PlayerScore name="Cypher Moon" id="cypher-moon" countdown={20} />
 
       <div className="mt-10 flex flex-col lg:flex-row-reverse justify-between items-start space-y-10 lg:space-y-0">
-        <GameBoard />
+        <TicTacToeBoard />
 
         <ScoreBoard
           rounds={10}
