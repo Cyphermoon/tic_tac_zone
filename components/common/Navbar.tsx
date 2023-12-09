@@ -2,7 +2,7 @@ import Logo from "./Logo"
 
 
 interface Props {
-    children: React.ReactNode
+    children?: React.ReactNode
 }
 
 const Navbar = ({ children }: Props) => {
@@ -10,10 +10,7 @@ const Navbar = ({ children }: Props) => {
     return (
         <nav className="flex justify-between items-center mb-10">
             <Logo />
-
-            <ul className="flex items-center space-x-4 lg:space-x-8 flex-row">
-                {children}
-            </ul>
+            {children}
         </nav>
     )
 }

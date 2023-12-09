@@ -1,0 +1,51 @@
+import React from 'react'
+import UserAvatar from '../common/UserAvatar'
+import Button from '../common/Button'
+
+interface Player {
+    name: string
+    id: string
+    mark: string
+}
+
+interface Props {
+    players: Player[]
+    startGame: () => void
+}
+
+const MobilePlayersCard = ({ players, startGame }: Props) => {
+    return (
+        <section className='bg-card rounded-2xl w-full p-4 lg:hidden'>
+            <div className="flex items-center justify-between space-x-4">
+                {players.map((player, idx) => {
+                    return (
+                        <>
+                            <div className='flex flex-col items-center space-y-4' key={idx}>
+                                <UserAvatar
+                                    name={player.name}
+                                    className='w-[80px] h-[80px] border-2 border-gray-300 p-2'
+                                    id={player.id} />
+
+                                <h2 className='text-2xl capitalize font-bold text-accent'>{player.mark}</h2>
+
+                                <h4 className='text-lg font-normal'>{player.name}</h4>
+                            </div>
+                            {
+                                idx === 0 &&
+                                <h3 className='text-xl font-bold font-mono '>VS</h3>
+                            }
+                        </>
+
+                    )
+                })}
+            </div>
+
+            <Button className='mx-auto !mt-6 !block' onClick={startGame} >
+                Start Game
+            </Button>
+
+        </section>
+    )
+}
+
+export default MobilePlayersCard
