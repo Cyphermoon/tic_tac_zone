@@ -3,15 +3,9 @@ import { createAvatar } from '@dicebear/core'
 import { pixelArt } from '@dicebear/collection'
 import * as Avatar from '@radix-ui/react-avatar';
 import Image from 'next/image';
+import { UserAvatarProps } from './type';
 
-interface Props {
-    imageUrl?: string
-    name: string
-    className?: string
-    id: string
-}
-
-const UserAvatar = ({ imageUrl, name, className, id }: Props) => {
+const UserAvatar = ({ imageUrl, name, className, id }: UserAvatarProps) => {
 
     const avatar = useMemo(() => {
         return createAvatar(pixelArt, {

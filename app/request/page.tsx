@@ -1,4 +1,5 @@
 "use client";
+import GameChat from "@/components/Request/GameChat";
 import GameConfig from "@/components/Request/GameConfig";
 import MobilePlayersCard from "@/components/Request/MobilePlayersCard";
 import PlayerCard from "@/components/Request/PlayerCard";
@@ -46,7 +47,7 @@ export default function GameRequest() {
         <Container as="main" className="pt-4">
             <Navbar />
 
-            <div className="flex flex-col lg:flex-row items-center lg:justify-between space-y-8 lg:space-y-0">
+            <div className="flex flex-col lg:flex-row items-center lg:justify-between space-y-8 lg:space-y-0 mb-7">
                 <MobilePlayersCard
                     players={[
                         { name: "Cypher Moon", id: "cypher-273", mark: "x" },
@@ -63,7 +64,6 @@ export default function GameRequest() {
                     loss={0} />
 
                 <GameConfig game={gameConfig} dispatch={dispatch} mode="view" />
-                {/* <GameInfo /> */}
 
                 <PlayerCard
                     name="Jack Smith"
@@ -72,7 +72,7 @@ export default function GameRequest() {
                     wins={0}
                     loss={10} />
             </div>
-
+            <GameChat />
         </Container>
     )
 }
