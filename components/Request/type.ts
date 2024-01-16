@@ -6,6 +6,7 @@ type BoardType = {
 }
 
 export type GameConfigType = {
+    mode: "ai" | "online" | "local"
     boardType: BoardType[],
     currentBoardType: BoardType,
     timer: number,

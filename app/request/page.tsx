@@ -4,12 +4,14 @@ import GameConfig from "@/components/Request/GameConfig";
 import MobilePlayersCard from "@/components/Request/MobilePlayersCard";
 import PlayerCard from "@/components/Request/PlayerCard";
 import { gameConfigReducer } from "@/components/Request/reducer";
+import { GameConfigType } from "@/components/Request/type";
 import Container from "@/components/common/Container";
 import Navbar from "@/components/common/Navbar";
 import { useReducer } from "react";
 
 
-const DEFAULT_GAME_CONFIG = {
+const DEFAULT_GAME_CONFIG: GameConfigType = {
+    mode: "online",
     boardType: [{
         dimension: "3",
         value: "3x3 Board",
