@@ -1,17 +1,27 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import UserAvatar from '../common/UserAvatar'
 import CircularBar from '../common/CircularBar'
+import { GamePlayerProps } from '../Home/type'
+import { reducePlayerScore, switchPlayer } from './LocalTicTacToe'
+import { useGameRepresentation } from '../Home/store'
 
 interface Props {
     name: string
     imageURL?: string
     id: string
     countdown?: number
+    player1: GamePlayerProps
+    player2: GamePlayerProps
+    currentPlayer: GamePlayerProps
+    setCurrentPlayer: (player: GamePlayerProps) => void
+    timeLeft: number,
+    setTimeLeft: (time: number) => void
 }
 
-const PlayerScore = ({ name, id, imageURL, countdown }: Props) => {
-    const [timeLeft, setTimeLeft] = useState(countdown)
+const PlayerScore = ({ name, id, imageURL, countdown, timeLeft, setTimeLeft, player1, player2, currentPlayer, setCurrentPlayer }: Props) => {
     const percentage = countdown && ((timeLeft || 0) / countdown) * 100
+    const updatePlayer1 = useGameRepresentation(state => state.updatePlayer1)
+    const updatePlayer2 = useGameRepresentation(state => state.updatePlayer2)
 
     useEffect(() => {
         if (timeLeft === undefined) return
@@ -22,12 +32,19 @@ const PlayerScore = ({ name, id, imageURL, countdown }: Props) => {
 
         if (timeLeft === 0) {
             clearInterval(interval)
+            setCurrentPlayer({
+                ...currentPlayer,
+                score: currentPlayer.score - 1
+            })
+            reducePlayerScore(currentPlayer, player1, player2, updatePlayer1, updatePlayer2)
+            switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
+            setTimeLeft(countdown || 10)
         }
 
         return () => {
             clearInterval(interval)
         }
-    }, [timeLeft])
+    }, [setTimeLeft, timeLeft, currentPlayer, player1, player2, setCurrentPlayer, countdown, updatePlayer2, updatePlayer1])
 
     return (
         <section className={`bg-card p-5 rounded-2xl  max-w-xl ${countdown ? "w-full" : "w-fit"} lg:mx-auto flex items-center justify-between`}>

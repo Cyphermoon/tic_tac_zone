@@ -1,4 +1,12 @@
 import React, { useState } from 'react'
+import { BoardType } from './type'
+
+interface Props {
+    label: string
+    board: BoardType
+    handleCellClicked: (position: string) => void
+    currentMarker: string
+}
 
 interface CellProps {
     boxType: string
@@ -6,40 +14,18 @@ interface CellProps {
     position: string
 }
 
-type BoardType = {
-    [key: string]: string;
-}
-
-const _board: BoardType = {
-    1: 'x',
-    2: 'o',
-    3: '',
-    4: '',
-    5: '',
-    6: '',
-    7: '',
-    8: '',
-    9: '',
-}
 
 
-const TicTacToeBoard = () => {
-    const [board, setBoard] = useState(_board);
-
-    function handleCellClicked(position: string) {
-        if (board[position] === '') {
-            setBoard({ ...board, [position]: 'o' })
-        }
-    }
+const TicTacToeBoard = ({ label, board, handleCellClicked, currentMarker }: Props) => {
 
     return (
         <section className='bg-card py-4 px-8 rounded-2xl w-full max-w-md space-y-10 min-h-[421px] flex flex-col items-center'>
             <div className='bg-neutral-200 rounded-lg px-5 py-1.5 w-fit flex items-center space-x-2'>
-                <span> 3x3 board</span>
+                <span> {label}</span>
             </div>
 
             {/* Displaying Cells */}
-            <div className="cells grid grid-cols-3 w-fit" data-currentmarker='o'>
+            <div className="cells grid grid-cols-3 w-fit" data-currentmarker={currentMarker}>
                 {Object.keys(board).map((position, idx) => {
                     return (
                         <Cell

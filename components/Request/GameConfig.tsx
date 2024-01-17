@@ -1,14 +1,17 @@
 import { Select, SelectContent, SelectIcon, SelectItem, SelectTrigger, SelectValue } from '@radix-ui/react-select'
 import { IoIosArrowDown } from "react-icons/io";
 import React from 'react'
-import { GameAction, GameConfigType } from './type';
+import { GameAction, GameConfigType, ViewModeType } from './type';
 import { Switch, SwitchThumb } from '@radix-ui/react-switch';
 import Button from '../common/Button';
 
+
+
 interface Props {
     game: GameConfigType
-    mode: "view" | "edit"
+    mode: ViewModeType
     dispatch: React.Dispatch<GameAction>
+    handleGameStart: () => void
 }
 
 interface optionHeaderProps {
@@ -21,10 +24,10 @@ interface numberInputProps {
     disabled: boolean
 }
 
-type BoardSelectionType = Omit<Props, "mode">
+type BoardSelectionType = Omit<Props, "mode" | "handleGameStart">
 
 
-const GameConfig = ({ game, mode, dispatch }: Props) => {
+const GameConfig = ({ game, mode, dispatch, handleGameStart }: Props) => {
     const handleTimerChange = (number: number) => {
         if (mode === "edit") {
             dispatch({ type: "updateTimer", payload: number });
@@ -84,7 +87,7 @@ const GameConfig = ({ game, mode, dispatch }: Props) => {
             </div>
 
             {mode === "edit" && (
-                <Button fullWidth>
+                <Button fullWidth onClick={handleGameStart}>
                     Start Game
                 </Button>
             )}

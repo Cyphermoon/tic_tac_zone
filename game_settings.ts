@@ -1,7 +1,7 @@
+import { BoardType } from "./components/Game/type";
 import { GameConfigType } from "./components/Request/type";
 
 export const DEFAULT_GAME_CONFIG: GameConfigType = {
-    mode: "online",
     boardType: [{
         dimension: "3",
         value: "3x3 Board",
@@ -20,7 +20,7 @@ export const DEFAULT_GAME_CONFIG: GameConfigType = {
         value: "3x3 Board",
         id: "3x3"
     },
-    timer: 30,
+    timer: 10,
     totalRounds: 3,
     roundsToWin: 2,
     distortedMode: true,
@@ -47,3 +47,16 @@ export const AiCharacters = [
         "className": "shadow-accent"
     }
 ]
+
+
+export const _board: BoardType = {
+    1: '',
+    2: '',
+    3: '',
+    4: '',
+    5: '',
+    6: '',
+    7: '',
+    8: '',
+    9: '',
+}// Function to check if a playerhaswonthegame  

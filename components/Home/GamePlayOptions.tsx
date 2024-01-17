@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import AiOptions from './AiOptions';
-import OnlinePlayerOptions from './OnlinePlayerOptions';
 import LocalOption from './LocalOption';
+import OnlinePlayerOptions from './OnlinePlayerOptions';
+import { useAIDifficulty, useGameMode, useLocalPlayer } from './store';
 import { LocalPlayersProps } from './type';
 
 interface TabProps {
@@ -12,22 +14,39 @@ interface TabProps {
 }
 
 const GamePlayOptions = () => {
+    const router = useRouter();
     const [selectedTab, setSelectedTab] = useState("online");
+
+    const updateGameMode = useGameMode(state => state.updateGameMode)
+    const updateAIDifficulty = useAIDifficulty(state => state.updateAIDifficulty)
+    const updateLocalPlayer = useLocalPlayer(state => state.updateLocalPlayer)
 
     function handleTabChange(tabName: string) {
         setSelectedTab(tabName)
     }
 
     function handleAiDifficultyChange(difficulty: string) {
-        console.log(difficulty)
+        updateGameMode("ai")
+        updateAIDifficulty(difficulty)
+        router.push("/request")
+
+
     }
 
     function handleChallenge(id: string) {
-        console.log(id, " has been challenged")
+        updateGameMode("online")
+        router.push("/request")
     }
 
     function handleLocalPlayerStart(players: LocalPlayersProps) {
-        console.log(players)
+        // TODO: generate random id for player 2
+
+        updateGameMode("local")
+        updateLocalPlayer({
+            name: players.player2.name,
+            id: "player-2"
+        })
+        router.push("/request")
     }
 
     return (

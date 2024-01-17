@@ -5,8 +5,8 @@ interface Props {
     name: string
     id: string
     mark: string
-    wins: number
-    loss: number
+    wins?: number
+    loss?: number
 }
 
 const PlayerCard = ({ name, id, mark, wins, loss }: Props) => {
@@ -22,15 +22,19 @@ const PlayerCard = ({ name, id, mark, wins, loss }: Props) => {
             <h4 className='text-4xl font-semibold'>{name}</h4>
 
             <div className='flex items-center space-x-12 justify-between'>
-                <div className="text-center">
-                    <span className='text-sm text-neutral-500'>Win</span>
-                    <h3 className='text-xl font-medium'>{wins}</h3>
-                </div>
+                {wins &&
+                    <div className="text-center">
+                        <span className='text-sm text-neutral-500'>Win</span>
+                        <h3 className='text-xl font-medium'>{wins}</h3>
+                    </div>
+                }
+                {loss &&
+                    <div className="text-center">
+                        <span className='text-sm text-neutral-500'>Loss</span>
+                        <h3 className='text-xl font-medium'>{loss}</h3>
+                    </div>
+                }
 
-                <div className="text-center">
-                    <span className='text-sm text-neutral-500'>Loss</span>
-                    <h3 className='text-xl font-medium'>{loss}</h3>
-                </div>
             </div>
         </section>
     )

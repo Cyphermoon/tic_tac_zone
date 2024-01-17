@@ -6,7 +6,6 @@ type BoardType = {
 }
 
 export type GameConfigType = {
-    mode: "ai" | "online" | "local"
     boardType: BoardType[],
     currentBoardType: BoardType,
     timer: number,
@@ -14,8 +13,9 @@ export type GameConfigType = {
     roundsToWin: number
     distortedMode: boolean
     revealMode: boolean
-
 }
+
+export type ViewModeType = "edit" | "view"
 
 export type GameAction =
 | { type: 'updateCurrentType'; payload: { dimension: string; value: string; id: string } }
@@ -23,4 +23,5 @@ export type GameAction =
 | { type: 'updateTotalRounds'; payload: number }
 | { type: 'updateRoundsToWin'; payload: number }
 | { type: 'updateDistortedMode'; payload: boolean }
-| { type: 'updateRevealMode'; payload: boolean };
+| { type: 'updateRevealMode'; payload: boolean }
+| {type:  'updateConfig'; payload: GameConfigType}
