@@ -1,27 +1,27 @@
 "use client";
-import TicTacToeBoard from "@/components/Game/TicTacToeBoard";
+import LocalTicTacToe from "@/components/Game/LocalTicTacToe";
 import PlayerScore from "@/components/Game/PlayerScore";
 import ScoreBoard from "@/components/Game/ScoreBoard";
+import { useGameMode, useGameRepresentation } from "@/components/Home/store";
 import Button from "@/components/common/Button";
 import Container from "@/components/common/Container";
 import NavItem from "@/components/common/NavItem";
 import Navbar from "@/components/common/Navbar";
 import GameInfoDialog from "@/components/modals/GameInfoModal";
 import { useModal } from "@/hooks/index.hook";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import { MdQuestionMark } from "react-icons/md";
-import { useGameMode, useGameRepresentation } from "@/components/Home/store";
-import { useState } from "react";
-import LocalTicTacToe from "@/components/Game/LocalTicTacToe";
 
 
 export default function Game() {
+  const router = useRouter()
   const gameMode = useGameMode(state => state.gameMode)
   const gameRepresentation = useGameRepresentation(state => state)
-  const { isOpen, openModal, closeModal } = useModal(false)
 
+  const { isOpen, openModal, closeModal } = useModal(false)
   const [currentPlayer, setCurrentPlayer] = useState(gameRepresentation.player1)
-  const [timeLeft, setTimeLeft] = useState(gameRepresentation.gameConfig?.timer || 0)
 
 
   return (
@@ -45,6 +45,7 @@ export default function Game() {
           <NavItem>
             <Button
               icon_rounded={true}
+              onClick={() => router.push("/")}
             >
               <FaTimes />
               <span className="hidden lg:block">
@@ -69,8 +70,6 @@ export default function Game() {
             setCurrentPlayer={setCurrentPlayer}
             name={currentPlayer.name}
             id={currentPlayer.id}
-            timeLeft={timeLeft}
-            setTimeLeft={setTimeLeft}
             countdown={gameRepresentation.gameConfig.timer} />
 
           <div className="mt-10 flex flex-col lg:flex-row-reverse justify-between items-start space-y-10 lg:space-y-0">
@@ -81,8 +80,7 @@ export default function Game() {
               currentPlayer={currentPlayer}
               setCurrentPlayer={setCurrentPlayer}
               label={gameRepresentation.gameConfig.currentBoardType.value}
-              countdown={gameRepresentation.gameConfig.timer}
-              setTimeLeft={setTimeLeft} />
+              countdown={gameRepresentation.gameConfig.timer} />
 
             <ScoreBoard
               rounds={gameRepresentation.gameConfig.totalRounds}

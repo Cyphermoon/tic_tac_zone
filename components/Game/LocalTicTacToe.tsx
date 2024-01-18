@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react'
-import { GamePlayerProps } from '../Home/type'
-import TicTacToeBoard from './TicTacToeBoard'
-import { BoardType } from './type'
 import { _board } from '@/game_settings'
-import { useGameRepresentation } from '../Home/store'
-import GameInfoDialog from '../modals/GameInfoModal'
 import { useModal } from '@/hooks/index.hook'
 import Image from 'next/image'
+import { useState } from 'react'
+import { useGameRepresentation } from '../Home/store'
+import { GamePlayerProps } from '../Home/type'
 import Button from '../common/Button'
+import GameInfoDialog from '../modals/GameInfoModal'
+import TicTacToeBoard from './TicTacToeBoard'
+import { BoardType } from './type'
 
 interface Props {
     label: string
@@ -16,7 +16,6 @@ interface Props {
     currentPlayer: GamePlayerProps
     setCurrentPlayer: (player: GamePlayerProps) => void
     countdown: number,
-    setTimeLeft: (time: number) => void
 }
 
 // Function to reset the game board
@@ -24,19 +23,22 @@ export const resetBoard = (setBoard: (board: BoardType) => void) => {
     setBoard(_board)
 }
 
-const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlayer, countdown, setTimeLeft }: Props) => {
+const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlayer, countdown }: Props) => {
     const [board, setBoard] = useState(_board);
     const { isOpen, openModal, closeModal } = useModal(false)
     const updatePlayer1 = useGameRepresentation(state => state.updatePlayer1)
     const updatePlayer2 = useGameRepresentation(state => state.updatePlayer2)
+    const updateTimeLeft = useGameRepresentation(state => state.updateTimer)
+    const updatePauseGame = useGameRepresentation(state => state.updatePause)
 
     // Function to handle cell click event
     function handleCellClicked(position: string) {
         if (board[position] !== '') return
 
         const newBoard = { ...board, [position]: currentPlayer.mark }
+        let _boardOpened = isOpen
 
-        setTimeLeft(countdown)
+        updateTimeLeft(countdown)
         setBoard(newBoard)
 
         if (checkWinner(currentPlayer.mark, newBoard)) {
@@ -46,7 +48,8 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
                 updatePlayer2({ ...player2, score: player2.score + 1 })
 
             resetBoard(setBoard)
-            openModal()
+            updatePauseGame(true)
+            _boardOpened = openModal()
             return
         }
 
@@ -57,27 +60,32 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
         resetBoard(setBoard)
         updatePlayer1({ ...player1, score: 0 })
         updatePlayer2({ ...player2, score: 0 })
-        closeModal()
+        handleCloseDialog()
+        switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
+
     }
 
-    function handleContinueGame() {
+    function handleCloseDialog() {
         closeModal()
+        updatePauseGame(false)
+        switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
+
     }
 
     return (
         <>
             <TicTacToeBoard label={label} handleCellClicked={handleCellClicked} board={board} currentMarker={currentPlayer.mark} />
-            <GameInfoDialog isOpen={isOpen || false} closeModal={closeModal}>
+            <GameInfoDialog isOpen={isOpen || false} closeModal={handleCloseDialog}>
                 <div className='flex flex-col items-center justify-center'>
                     <h1 className='text-center text-2xl font-semibold text-secondary'>
                         {currentPlayer.name} is the winner
                     </h1>
-                    <Image alt="Celebration GIG" src="/celebration.gif" width={200} height={200} />
+                    <Image alt="Celebration GIF" src="/celebration.gif" width={200} height={200} />
                     <div className='flex items-center space-x-5'>
                         <Button onClick={handleResetScore}>
                             Reset Score
                         </Button>
-                        <Button variant='muted' onClick={handleContinueGame} >
+                        <Button variant='muted' onClick={handleCloseDialog} >
                             Play Again
                         </Button>
                     </div>

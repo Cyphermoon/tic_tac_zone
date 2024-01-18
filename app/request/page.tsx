@@ -21,13 +21,15 @@ export default function GameRequest() {
     const gameMode = useGameMode(state => state.gameMode)
     const localPlayer = useLocalPlayer(state => state)
 
-
     const aiDifficulty = useAIDifficulty(state => state.aiDifficulty)
     const currentPlayer = useCurrentPlayer(state => state)
+
     const updateGameConfig = useGameRepresentation(state => state.updateGameConfig)
     const updatePlayer1 = useGameRepresentation(state => state.updatePlayer1)
     const updatePlayer2 = useGameRepresentation(state => state.updatePlayer2)
     const updateDraws = useGameRepresentation(state => state.updateDraws)
+    const updateTimeLeft = useGameRepresentation(state => state.updateTimer)
+    const updatePauseGame = useGameRepresentation(state => state.updatePause)
 
     const [player1, setPlayer1] = useState<any>(null)
     const [player2, setPlayer2] = useState<any>(null)
@@ -81,6 +83,8 @@ export default function GameRequest() {
             score: 0,
         })
         updateDraws(0)
+        updatePauseGame(false)
+        updateTimeLeft(gameConfig.timer)
 
         router.push("/game")
     }

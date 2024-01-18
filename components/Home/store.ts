@@ -38,8 +38,12 @@ export const useGameRepresentation = create<GameRepresentationStateProps>(set =>
     player1: null,
     player2: null,
     draws: 0,
+    timer: 0,
+    pause: false,
     updateGameConfig: (game: GameConfigType) => set({gameConfig: {...game}}),
     updatePlayer1: (player: GamePlayerProps) => set({player1: {...player}}),
     updatePlayer2: (player: GamePlayerProps) => set({player2: {...player}}),
-    updateDraws: (draws: number) => set({draws})
+    updateDraws: (draws: number) => set({draws}),
+    updateTimer: (timer: number) => set({timer}),
+    updatePause: (pause: boolean) => set({pause})
 }))

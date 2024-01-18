@@ -14,37 +14,43 @@ interface Props {
     player2: GamePlayerProps
     currentPlayer: GamePlayerProps
     setCurrentPlayer: (player: GamePlayerProps) => void
-    timeLeft: number,
-    setTimeLeft: (time: number) => void
 }
 
-const PlayerScore = ({ name, id, imageURL, countdown, timeLeft, setTimeLeft, player1, player2, currentPlayer, setCurrentPlayer }: Props) => {
+const PlayerScore = ({ name, id, imageURL, countdown, player1, player2, currentPlayer, setCurrentPlayer, }: Props) => {
+    const timeLeft = useGameRepresentation(state => state.timer)
+    const pauseGame = useGameRepresentation(state => state.pause)
     const percentage = countdown && ((timeLeft || 0) / countdown) * 100
     const updatePlayer1 = useGameRepresentation(state => state.updatePlayer1)
     const updatePlayer2 = useGameRepresentation(state => state.updatePlayer2)
+    const updateTimeLeft = useGameRepresentation(state => state.updateTimer)
 
     useEffect(() => {
         if (timeLeft === undefined) return
         // Starts countdown immediately
         const interval = setInterval(() => {
-            setTimeLeft(timeLeft - 1)
+            updateTimeLeft(timeLeft - 1)
         }, 1000)
+
+        if (pauseGame) {
+            clearInterval(interval)
+        }
 
         if (timeLeft === 0) {
             clearInterval(interval)
+
             setCurrentPlayer({
                 ...currentPlayer,
                 score: currentPlayer.score - 1
             })
             reducePlayerScore(currentPlayer, player1, player2, updatePlayer1, updatePlayer2)
             switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
-            setTimeLeft(countdown || 10)
+            updateTimeLeft(countdown || 10)
         }
 
         return () => {
             clearInterval(interval)
         }
-    }, [setTimeLeft, timeLeft, currentPlayer, player1, player2, setCurrentPlayer, countdown, updatePlayer2, updatePlayer1])
+    }, [timeLeft, currentPlayer, player1, player2, setCurrentPlayer, countdown, updatePlayer2, updatePlayer1, updateTimeLeft, pauseGame])
 
     return (
         <section className={`bg-card p-5 rounded-2xl  max-w-xl ${countdown ? "w-full" : "w-fit"} lg:mx-auto flex items-center justify-between`}>

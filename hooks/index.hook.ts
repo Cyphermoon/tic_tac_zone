@@ -7,10 +7,12 @@ export function useModal (initialState: boolean | undefined) {
 
     const openModal = () => {
         setIsOpen(true);
+        return true
     };
 
     const closeModal = () => {
         setIsOpen(false);
+        return false
     };
 
     return { isOpen, openModal, closeModal };

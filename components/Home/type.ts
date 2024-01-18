@@ -80,9 +80,13 @@ export type GameRepresentationStateProps = {
     gameConfig: GameConfigType | null
     player1: GamePlayerProps | null
     player2: GamePlayerProps | null
+    timer: number
+    pause: boolean
     draws: number | null
     updateGameConfig: (game: GameConfigType) => void
     updatePlayer1: (player: GamePlayerProps) => void
     updatePlayer2: (player: GamePlayerProps) => void
     updateDraws: (draws: number) => void
+    updateTimer: (timer: number) => void
+    updatePause: (pause: boolean) => void
 }
