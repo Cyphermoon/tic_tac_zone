@@ -2,8 +2,8 @@ import React, { useEffect } from 'react'
 import UserAvatar from '../common/UserAvatar'
 import CircularBar from '../common/CircularBar'
 import { GamePlayerProps } from '../Home/type'
-import { reducePlayerScore, switchPlayer } from './LocalTicTacToe'
 import { useGameRepresentation } from '../Home/store'
+import { reducePlayerScore, switchPlayer } from './util'
 
 interface Props {
     name: string

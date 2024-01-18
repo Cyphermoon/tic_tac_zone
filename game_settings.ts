@@ -32,19 +32,19 @@ export const AiCharacters = [
         "name": "Rookie Robot",
         "id": "moon-1",
         "difficulty": "easy",
-        "className": "shadow-green-400"
+        "className": "shadow-sm shadow-green-400"
     },
     {
         "name": "Clever Cyborg",
         "id": "stable-xxl",
         "difficulty": "medium",
-        "className": "shadow-blue-400"
+        "className": "shadow-sm shadow-blue-400"
     },
     {
         "name": "Master Mindbot",
         "id": "moon-3",
         "difficulty": "hard",
-        "className": "shadow-accent"
+        "className": "shadow-sm shadow-accent"
     }
 ]
 

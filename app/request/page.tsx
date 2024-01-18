@@ -13,6 +13,9 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useReducer, useState } from "react";
 
 
+// TODO: remove distorted mode for AI
+
+
 export default function GameRequest() {
     const router = useRouter()
     const [gameConfig, dispatch] = useReducer(gameConfigReducer, DEFAULT_GAME_CONFIG);
@@ -48,7 +51,9 @@ export default function GameRequest() {
         setPlayer2({
             name: aiCharacter.name,
             id: aiCharacter.id,
+            difficulty: aiCharacter.difficulty,
             mark: "o",
+            className: aiCharacter.className,
         })
 
         setViewMode("edit")
@@ -136,7 +141,8 @@ export default function GameRequest() {
                                 <PlayerCard
                                     name={player2.name}
                                     id={player2.id}
-                                    mark={player2.mark} />
+                                    mark={player2.mark}
+                                    className={player2.className} />
                             }
 
                             {gameMode === "online" &&

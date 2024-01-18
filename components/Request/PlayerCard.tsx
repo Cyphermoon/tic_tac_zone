@@ -7,11 +7,12 @@ interface Props {
     mark: string
     wins?: number
     loss?: number
+    className?: string
 }
 
-const PlayerCard = ({ name, id, mark, wins, loss }: Props) => {
+const PlayerCard = ({ name, id, mark, wins, loss, className = "" }: Props) => {
     return (
-        <section className='hidden lg:flex flex-col items-center bg-card rounded-2xl min-w-[300px] px-6 py-4 space-y-4'>
+        <section className={`hidden lg:flex flex-col items-center bg-card rounded-2xl min-w-[300px] px-6 py-4 space-y-4 ${className}`}>
             <UserAvatar
                 name={name}
                 className='w-[165px] h-[165px] border-2 border-gray-300 p-2'

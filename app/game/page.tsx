@@ -1,4 +1,5 @@
 "use client";
+import AiTicTacToe from "@/components/Game/AiTicTacToe";
 import LocalTicTacToe from "@/components/Game/LocalTicTacToe";
 import PlayerScore from "@/components/Game/PlayerScore";
 import ScoreBoard from "@/components/Game/ScoreBoard";
@@ -73,14 +74,27 @@ export default function Game() {
             countdown={gameRepresentation.gameConfig.timer} />
 
           <div className="mt-10 flex flex-col lg:flex-row-reverse justify-between items-start space-y-10 lg:space-y-0">
+            {gameMode === "local" &&
+              <LocalTicTacToe
+                player1={gameRepresentation.player1}
+                player2={gameRepresentation.player2}
+                currentPlayer={currentPlayer}
+                setCurrentPlayer={setCurrentPlayer}
+                label={gameRepresentation.gameConfig.currentBoardType.value}
+                countdown={gameRepresentation.gameConfig.timer} />
+            }
 
-            <LocalTicTacToe
-              player1={gameRepresentation.player1}
-              player2={gameRepresentation.player2}
-              currentPlayer={currentPlayer}
-              setCurrentPlayer={setCurrentPlayer}
-              label={gameRepresentation.gameConfig.currentBoardType.value}
-              countdown={gameRepresentation.gameConfig.timer} />
+            {
+              gameMode === "ai" &&
+              <AiTicTacToe
+                player1={gameRepresentation.player1}
+                player2={gameRepresentation.player2}
+                currentPlayer={currentPlayer}
+                setCurrentPlayer={setCurrentPlayer}
+                label={gameRepresentation.gameConfig.currentBoardType.value}
+                countdown={gameRepresentation.gameConfig.timer} />
+            }
+
 
             <ScoreBoard
               rounds={gameRepresentation.gameConfig.totalRounds}

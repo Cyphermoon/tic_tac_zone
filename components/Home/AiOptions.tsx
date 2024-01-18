@@ -2,6 +2,7 @@ import React from 'react'
 import { UserAvatarProps } from '../common/type'
 import UserAvatar from '../common/UserAvatar'
 import { AiCharacters } from '@/game_settings';
+import clsx from 'clsx';
 
 type Difficulty = "hard" | "medium" | "easy";
 
@@ -23,6 +24,7 @@ const AiOptions = ({ handleAiDifficultyChange }: Props) => {
                 <AiCard
                     key={i}
                     avatar={avatar}
+                    className={avatar.className}
                     difficulty={avatar.difficulty as Difficulty}
                     handleAiDifficultyChange={handleAiDifficultyChange}
                 />
@@ -35,9 +37,15 @@ const AiOptions = ({ handleAiDifficultyChange }: Props) => {
 export default AiOptions
 
 const AiCard = ({ avatar, difficulty, className = "", handleAiDifficultyChange }: AiCardProps) => {
+    let shadowClass = clsx("shadow-sm", {
+        "shadow-accent": difficulty === "hard",
+        "shadow-green-400": difficulty === "easy",
+        "shadow-blue-400": difficulty === "medium",
+
+    })
     return (
         <div
-            className={`bg-card shadow-sm rounded-2xl py-3 px-12 flex flex-col items-center cursor-pointer transition-transform duration-500 hover:-translate-y-5 space-y-10 ${className}`}
+            className={`bg-card shadow-sm rounded-2xl py-3 px-12 flex flex-col items-center cursor-pointer transition-transform duration-500 hover:-translate-y-5 space-y-10 ${className} ${shadowClass}`}
             onClick={() => handleAiDifficultyChange(difficulty)}>
             <span>{difficulty}</span>
             <UserAvatar {...avatar} className='w-[120px] h-[120px]' />

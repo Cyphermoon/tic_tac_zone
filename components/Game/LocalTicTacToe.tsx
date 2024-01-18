@@ -8,6 +8,7 @@ import Button from '../common/Button'
 import GameInfoDialog from '../modals/GameInfoModal'
 import TicTacToeBoard from './TicTacToeBoard'
 import { BoardType } from './type'
+import { checkWinner, isDraw, switchPlayer } from './util'
 
 interface Props {
     label: string
@@ -26,6 +27,7 @@ export const resetBoard = (setBoard: (board: BoardType) => void) => {
 const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlayer, countdown }: Props) => {
     const [board, setBoard] = useState(_board);
     const { isOpen, openModal, closeModal } = useModal(false)
+    const { isOpen: drawModal, openModal: openDrawModal, closeModal: closeDrawModal } = useModal(false)
     const updatePlayer1 = useGameRepresentation(state => state.updatePlayer1)
     const updatePlayer2 = useGameRepresentation(state => state.updatePlayer2)
     const updateTimeLeft = useGameRepresentation(state => state.updateTimer)
@@ -36,7 +38,6 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
         if (board[position] !== '') return
 
         const newBoard = { ...board, [position]: currentPlayer.mark }
-        let _boardOpened = isOpen
 
         updateTimeLeft(countdown)
         setBoard(newBoard)
@@ -49,7 +50,14 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
 
             resetBoard(setBoard)
             updatePauseGame(true)
-            _boardOpened = openModal()
+            openModal()
+            return
+        }
+
+        if (isDraw(newBoard)) {
+            resetBoard(setBoard)
+            updatePauseGame(true)
+            openDrawModal()
             return
         }
 
@@ -60,22 +68,28 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
         resetBoard(setBoard)
         updatePlayer1({ ...player1, score: 0 })
         updatePlayer2({ ...player2, score: 0 })
-        handleCloseDialog()
+        handleCloseModal()
         switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
 
     }
 
-    function handleCloseDialog() {
+    function handleCloseModal() {
         closeModal()
         updatePauseGame(false)
         switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
 
     }
 
+    function handleDrawDialogClose() {
+        closeDrawModal()
+        updatePauseGame(false)
+        switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
+    }
+
     return (
         <>
             <TicTacToeBoard label={label} handleCellClicked={handleCellClicked} board={board} currentMarker={currentPlayer.mark} />
-            <GameInfoDialog isOpen={isOpen || false} closeModal={handleCloseDialog}>
+            <GameInfoDialog isOpen={isOpen || false} closeModal={handleCloseModal}>
                 <div className='flex flex-col items-center justify-center'>
                     <h1 className='text-center text-2xl font-semibold text-secondary'>
                         {currentPlayer.name} is the winner
@@ -85,13 +99,20 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
                         <Button onClick={handleResetScore}>
                             Reset Score
                         </Button>
-                        <Button variant='muted' onClick={handleCloseDialog} >
+                        <Button variant='muted' onClick={handleCloseModal} >
                             Play Again
                         </Button>
                     </div>
                 </div>
-
-
+            </GameInfoDialog>
+            <GameInfoDialog isOpen={drawModal || false} closeModal={handleDrawDialogClose}>
+                <div className='flex flex-col items-center justify-center'>
+                    <h1 className='text-center text-2xl font-semibold text-secondary'>
+                        You both did well 🤨
+                    </h1>
+                    <span>This round is a draw</span>
+                    <Image alt="Celebration GIF" src="/celebration.gif" width={200} height={200} />
+                </div>
             </GameInfoDialog>
         </>
     )
@@ -100,55 +121,3 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
 export default LocalTicTacToe
 
 // Function to switch the current player
-export function switchPlayer(
-    currentPlayer: GamePlayerProps,
-    player1: GamePlayerProps,
-    player2: GamePlayerProps,
-    setCurrentPlayer: (player: GamePlayerProps) => void,
-) {
-    if (currentPlayer.id === player1.id) {
-        setCurrentPlayer(player2)
-    } else {
-        setCurrentPlayer(player1)
-    }
-}
-
-// Function to reduce player score
-export function reducePlayerScore(
-    currentPlayer: GamePlayerProps,
-    player1: GamePlayerProps,
-    player2: GamePlayerProps,
-    updatePlayer1: (player: GamePlayerProps) => void,
-    updatePlayer2: (player: GamePlayerProps) => void,
-) {
-    if (currentPlayer.id === player1.id) {
-        updatePlayer1({ ...player1, score: player1.score - 1 })
-    } else {
-        updatePlayer2({ ...player2, score: player2.score - 1 })
-    }
-}
-
-// Function to check if a player has won
-export function checkWinner(marker: string, board: BoardType) {
-    const winningCombination = [
-        // Horizontal
-        [1, 2, 3],
-        [4, 5, 6],
-        [7, 8, 9],
-
-        // Vertical
-        [1, 4, 7],
-        [2, 5, 8],
-        [3, 6, 9],
-
-        // Diagonal
-        [1, 5, 9],
-        [3, 5, 7],
-    ]
-
-    const isMarkerWinner = winningCombination.some(combination =>
-        combination.every(position => board[position] === marker)
-    )
-
-    return isMarkerWinner
-}

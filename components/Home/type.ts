@@ -67,6 +67,7 @@ export type GamePlayerProps = {
     id: string
     mark: string
     score: number
+    difficulty?: string
 }
 
 export type GameRepresentationProps = {
