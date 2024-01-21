@@ -4,7 +4,11 @@ import { useGameRepresentation } from '../Home/store'
 import { GamePlayerProps } from '../Home/type'
 import { resetBoard } from './LocalTicTacToe'
 import TicTacToeBoard from './TicTacToeBoard'
-import { checkWinner, isDraw, minimax, switchPlayer } from './util'
+import { checkWinner, getAvailablePositions, isDraw, minimax, switchPlayer } from './util'
+import GameInfoDialog from '../modals/GameInfoModal'
+import Image from 'next/image'
+import Button from '../common/Button'
+import { useModal } from '@/hooks/index.hook'
 
 interface Props {
     label: string
@@ -16,11 +20,22 @@ interface Props {
 }
 
 const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCurrentPlayer }: Props) => {
-    const [board, setBoard] = useState(_board);
     const updatePlayer1 = useGameRepresentation(state => state.updatePlayer1)
     const updatePlayer2 = useGameRepresentation(state => state.updatePlayer2)
     const updateTimeLeft = useGameRepresentation(state => state.updateTimer)
     const updatePauseGame = useGameRepresentation(state => state.updatePause)
+    const updateMatchRound = useGameRepresentation(state => state.updateRound)
+
+    const roundsToWin = useGameRepresentation(state => state.gameConfig?.roundsToWin || 1)
+    const matchRound = useGameRepresentation(state => state.round)
+
+    const { isOpen, openModal, closeModal } = useModal(false)
+
+    const [board, setBoard] = useState(_board);
+    const [gameDraw, setGameDraw] = useState(false)
+    const [gameWon, setGameWon] = useState(false)
+    const [winner, setWinner] = useState<GamePlayerProps | null>()
+
     const isAITurn = currentPlayer.id === player2.id
     const aiDifficulty = player2.difficulty
 
@@ -29,35 +44,47 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
         if (board[position] !== '') return
 
         let newBoard = { ...board, [position]: currentPlayer.mark }
+        let finalWinner = false
 
+        // Update board
         updateTimeLeft(countdown)
         setBoard(newBoard)
 
         // Check for winner
         if (checkWinner(currentPlayer.mark, newBoard)) {
-            if (currentPlayer.id === player1.id)
-                updatePlayer1({ ...player1, score: player1.score + 1 })
-            else
-                updatePlayer2({ ...player2, score: player2.score + 1 })
+            if (currentPlayer.id === player1.id) {
+                setWinner(player1)
+                let score = player1.score + 1
+                if (score <= roundsToWin)
+                    updatePlayer1({ ...player1, score })
+
+            }
+            else {
+                setWinner(player2)
+                let score = player2.score + 1
+                if (score <= roundsToWin)
+                    updatePlayer2({ ...player2, score })
+
+            }
 
             resetBoard(setBoard)
-            updatePauseGame(true)
-            return
+
         }
 
         // Check for draw
         if (isDraw(newBoard)) {
             resetBoard(setBoard)
-            updatePauseGame(true)
-            return
         }
 
-        switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
-    }, [board, countdown, currentPlayer, player1, player2, setCurrentPlayer, updatePauseGame, updatePlayer1, updatePlayer2, updateTimeLeft])
+
+        switchPlayer(currentPlayer, player1, player2, setCurrentPlayer, finalWinner)
+
+    }, [board, countdown, currentPlayer, player1, player2, roundsToWin, setCurrentPlayer, updatePlayer1, updatePlayer2, updateTimeLeft])
+
 
     // Handle easy AI move
     const handleEasyAiMove = useCallback(() => {
-        let availablePositions = Object.keys(board).filter(position => board[position] === '')
+        let availablePositions = getAvailablePositions(board)
         let randomPosition = availablePositions[Math.floor(Math.random() * availablePositions.length)]
 
         return randomPosition
@@ -65,7 +92,7 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
 
     // Handle medium AI move
     const handleMediumAiMove = useCallback(() => {
-        let availablePositions = Object.keys(board).filter(position => board[position] === "")
+        let availablePositions = getAvailablePositions(board)
         let aiMove = null;
 
         for (let position of availablePositions) {
@@ -74,7 +101,6 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
 
             // Check for winning move for AI
             if (checkWinner(player2.mark, aiSimulationBoard)) {
-                console.log("Winning Move Found for AI")
                 aiMove = position
                 break
             }
@@ -82,7 +108,6 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
             // Check for winning move for human
             if (checkWinner(player1.mark, humanSimulationBoard)) {
                 aiMove = position
-                console.log("Winning Move Found for Human")
             }
         }
 
@@ -94,32 +119,72 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
         return aiMove
     }, [board, player1.mark, player2.mark]);
 
-    type Board = { [key: string]: string };
-    type Player = { mark: string };
-
 
 
     const handleHardAiMove = useCallback(() => {
-        let bestScore = -Infinity;
-        let move: string = ""
+        // Get available positions
+        const availablePositions = getAvailablePositions(board).length
+        let move
 
-        for (let position of Object.keys(board)) {
-            if (board[position] === '') {
-                board[position] = player2.mark;
-                let score = minimax(board, false, player1, player2);
-                board[position] = '';
-                if (score > bestScore) {
-                    bestScore = score;
-                    move = position;
-                }
-            }
+        //Assign random position if board is empty otherwise use minimax algorithm
+        if (availablePositions === 9) {
+            move = handleEasyAiMove()
+        } else {
+            move = minimax(board, true, player1, player2)["position"]
         }
 
-        return move;
-    }, [board, player1, player2]);
+        //Ensure move is a string
+        if (typeof move === "string")
+            return move;
+
+        return ""
+
+    }, [board, handleEasyAiMove, player1, player2]);
+
+
+    function handleResetScore() {
+        resetBoard(setBoard)
+        updatePlayer1({ ...player1, score: 0 })
+        updatePlayer2({ ...player2, score: 0 })
+        handleCloseModal()
+        switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
+
+    }
+
+
+    function handleCloseModal(turn: "human" | "ai" | "switch" = "switch") {
+        // Reset board and update player score  
+        closeModal()
+        setGameDraw(false)
+        setGameWon(false)
+        updatePauseGame(false)
+        updateMatchRound(0)
+        resetBoard(setBoard)
+        updatePlayer1({ ...player1, score: 0 })
+        updatePlayer2({ ...player2, score: 0 })
+
+        // Switch player turn based on the provided parameter
+        if (turn === "switch") {
+            switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
+        } else if (turn === "human") {
+            setCurrentPlayer(player1)
+        } else if (turn === "ai") {
+            setCurrentPlayer(player2)
+        }
+    }
 
     useEffect(() => {
-        // Perform AI move based on difficulty
+        if (player1.score >= roundsToWin || player2.score >= roundsToWin) {
+            updatePauseGame(true)
+            openModal()
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [player1.score, player2.score, roundsToWin])
+
+
+    // Perform AI move based on difficulty
+    useEffect(() => {
         if (isAITurn && aiDifficulty === "easy") {
             handleCellClicked(handleEasyAiMove())
         } else if (isAITurn && aiDifficulty === "medium") {
@@ -127,11 +192,44 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
         } else if (isAITurn && aiDifficulty === "hard") {
             handleCellClicked(handleHardAiMove())
         }
-    }, [aiDifficulty, handleCellClicked, handleEasyAiMove, handleHardAiMove, handleMediumAiMove, isAITurn])
+    }, [aiDifficulty, gameDraw, gameWon, handleCellClicked, handleEasyAiMove, handleHardAiMove, handleMediumAiMove, isAITurn])
+
+
+    useEffect(() => {
+        console.log("matchRound ", matchRound)
+    }, [matchRound])
+
 
     return (
         <>
             <TicTacToeBoard label={label} handleCellClicked={handleCellClicked} board={board} currentMarker={currentPlayer.mark} />
+            <GameInfoDialog isOpen={isOpen || false} closeModal={handleCloseModal}>
+                {winner &&
+                    <div className='flex flex-col items-center justify-center'>
+
+                        <h1 className='text-center text-2xl font-semibold text-secondary'>
+                            {
+                                !gameDraw ?
+                                    `${winner.name} is the winner` :
+                                    `It's a draw`
+                            }
+                        </h1>
+
+                        {winner.id === player2.id && player2.difficulty === "hard" && <span>You {"can't"} really beat me. The best you can get is a draw </span>}
+
+                        <Image alt="Celebration GIF" src="/celebration.gif" width={200} height={200} />
+                        <div className='flex flex-col lg:flex-row items-center space-y-4 lg:space-y-0 lg:space-x-5'>
+                            <Button variant='muted' onClick={() => handleCloseModal("human")} >
+                                Take Next Turn
+                            </Button>
+                            <Button onClick={() => handleCloseModal("ai")} >
+                                Give {player2.name} Next Turn
+                            </Button>
+                        </div>
+                    </div>
+                }
+
+            </GameInfoDialog>
         </>
     )
 }

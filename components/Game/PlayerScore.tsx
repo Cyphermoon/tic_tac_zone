@@ -3,7 +3,7 @@ import UserAvatar from '../common/UserAvatar'
 import CircularBar from '../common/CircularBar'
 import { GamePlayerProps } from '../Home/type'
 import { useGameRepresentation } from '../Home/store'
-import { reducePlayerScore, switchPlayer } from './util'
+import { increaseOtherPlayerScore, switchPlayer } from './util'
 
 interface Props {
     name: string
@@ -19,10 +19,13 @@ interface Props {
 const PlayerScore = ({ name, id, imageURL, countdown, player1, player2, currentPlayer, setCurrentPlayer, }: Props) => {
     const timeLeft = useGameRepresentation(state => state.timer)
     const pauseGame = useGameRepresentation(state => state.pause)
+    const matchRound = useGameRepresentation(state => state.round)
+    const roundsToWin = useGameRepresentation(state => state.gameConfig?.roundsToWin || 1)
     const percentage = countdown && ((timeLeft || 0) / countdown) * 100
     const updatePlayer1 = useGameRepresentation(state => state.updatePlayer1)
     const updatePlayer2 = useGameRepresentation(state => state.updatePlayer2)
     const updateTimeLeft = useGameRepresentation(state => state.updateTimer)
+    const updateMatchRound = useGameRepresentation(state => state.updateRound)
 
     useEffect(() => {
         if (timeLeft === undefined) return
@@ -33,24 +36,26 @@ const PlayerScore = ({ name, id, imageURL, countdown, player1, player2, currentP
 
         if (pauseGame) {
             clearInterval(interval)
+            return
         }
 
         if (timeLeft === 0) {
             clearInterval(interval)
+            console.log("time left is ", timeLeft)
 
-            setCurrentPlayer({
-                ...currentPlayer,
-                score: currentPlayer.score - 1
-            })
-            reducePlayerScore(currentPlayer, player1, player2, updatePlayer1, updatePlayer2)
-            switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
+            // setCurrentPlayer({
+            //     ...currentPlayer,
+            //     score: currentPlayer.score + 1
+            // })
             updateTimeLeft(countdown || 10)
-        }
+            increaseOtherPlayerScore(currentPlayer, player1, player2, updatePlayer1, updatePlayer2)
+            switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
 
+        }
         return () => {
             clearInterval(interval)
         }
-    }, [timeLeft, currentPlayer, player1, player2, setCurrentPlayer, countdown, updatePlayer2, updatePlayer1, updateTimeLeft, pauseGame])
+    }, [timeLeft, currentPlayer, player1, player2, countdown, pauseGame, updateTimeLeft, updateMatchRound, matchRound, updatePlayer1, updatePlayer2, roundsToWin, setCurrentPlayer])
 
     return (
         <section className={`bg-card p-5 rounded-2xl  max-w-xl ${countdown ? "w-full" : "w-fit"} lg:mx-auto flex items-center justify-between`}>

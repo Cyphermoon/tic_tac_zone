@@ -1,4 +1,4 @@
-import { GamePlayerProps, PlayerProps } from "../Home/type"
+import { GamePlayerProps } from "../Home/type"
 import { BoardType } from "./type"
 
 export function switchPlayer(
@@ -6,7 +6,11 @@ export function switchPlayer(
     player1: GamePlayerProps,
     player2: GamePlayerProps,
     setCurrentPlayer: (player: GamePlayerProps) => void,
+    finalWinner: boolean = false
 ) {
+    console.log("Final Variable: ", finalWinner)
+    if (finalWinner) return
+
     if (currentPlayer.id === player1.id) {
         setCurrentPlayer(player2)
     } else {
@@ -15,7 +19,7 @@ export function switchPlayer(
 }
 
 // Function to reduce player score
-export function reducePlayerScore(
+export function increaseOtherPlayerScore(
     currentPlayer: GamePlayerProps,
     player1: GamePlayerProps,
     player2: GamePlayerProps,
@@ -23,10 +27,15 @@ export function reducePlayerScore(
     updatePlayer2: (player: GamePlayerProps) => void,
 ) {
     if (currentPlayer.id === player1.id) {
-        updatePlayer1({ ...player1, score: player1.score - 1 })
+        let score = player2.score + 1
+        updatePlayer2({ ...player2, score })
+
+
     } else {
-        updatePlayer2({ ...player2, score: player2.score - 1 })
+        let score = player1.score + 1
+        updatePlayer1({ ...player1, score })
     }
+
 }
 
 // Function to check if a player has won
@@ -58,37 +67,59 @@ export function isDraw(board: BoardType) {
     return Object.values(board).every(cell => cell !== '')
 }
 
+export interface MiniMaxProps {
+    score: number,
+    position: string | null
+}
 
-export const minimax = (board: BoardType, isMaximizingPlayer: boolean, player1: GamePlayerProps, player2: GamePlayerProps): number => {
+
+export const minimax = (board: BoardType, isMaximizingPlayer: boolean, player1: GamePlayerProps, player2: GamePlayerProps):MiniMaxProps => {
     if (checkWinner(player1.mark, board)) {
-        return -1;
+        return {score:-1, position:null};
     } else if (checkWinner(player2.mark, board)) {
-        return 1;
+        return {score:1, position:null};
     } else if (isDraw(board)) {
-        return 0;
+        return {score:0, position: null};
     }
 
     if (isMaximizingPlayer) {
         let bestScore = -Infinity;
+        let bestPosition = null
+
         for (let position of Object.keys(board)) {
             if (board[position] === '') {
                 board[position] = player2.mark;
-                let score = minimax(board, false, player1, player2);
+                let state = minimax(board, false, player1, player2);
                 board[position] = '';
-                bestScore = Math.max(score, bestScore);
+
+                if(state.score > bestScore){
+                    bestScore = state.score
+                    bestPosition = position
+                }
             }
         }
-        return bestScore;
+        return {score:bestScore, position: bestPosition};
+
     } else {
         let bestScore = Infinity;
+        let bestPosition = null
+
         for (let position of Object.keys(board)) {
             if (board[position] === '') {
                 board[position] = player1.mark;
-                let score = minimax(board,true, player1, player2);
+                let state = minimax(board,true, player1, player2);
                 board[position] = '';
-                bestScore = Math.min(score, bestScore);
+
+                if(state.score < bestScore){   
+                    bestScore = state.score
+                    bestPosition = position
+                }
             }
         }
-        return bestScore;
+        return {score: bestScore, position: bestPosition};
     }
+}
+
+export function getAvailablePositions(board: BoardType) {
+    return Object.keys(board).filter(key => board[key] === '')
 }

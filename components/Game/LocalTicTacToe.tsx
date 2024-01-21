@@ -28,6 +28,9 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
     const [board, setBoard] = useState(_board);
     const { isOpen, openModal, closeModal } = useModal(false)
     const { isOpen: drawModal, openModal: openDrawModal, closeModal: closeDrawModal } = useModal(false)
+
+    const roundsToWin = useGameRepresentation(state => state.gameConfig?.roundsToWin)
+    const [matchRound, setRound] = useState(1)
     const updatePlayer1 = useGameRepresentation(state => state.updatePlayer1)
     const updatePlayer2 = useGameRepresentation(state => state.updatePlayer2)
     const updateTimeLeft = useGameRepresentation(state => state.updateTimer)
@@ -48,14 +51,15 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
             else
                 updatePlayer2({ ...player2, score: player2.score + 1 })
 
-            resetBoard(setBoard)
-            updatePauseGame(true)
-            openModal()
+
+            if (matchRound === roundsToWin) {
+                updatePauseGame(true)
+                openModal()
+            }
             return
         }
 
         if (isDraw(newBoard)) {
-            resetBoard(setBoard)
             updatePauseGame(true)
             openDrawModal()
             return
@@ -75,6 +79,7 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
 
     function handleCloseModal() {
         closeModal()
+        resetBoard(setBoard)
         updatePauseGame(false)
         switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
 
@@ -82,6 +87,7 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
 
     function handleDrawDialogClose() {
         closeDrawModal()
+        resetBoard(setBoard)
         updatePauseGame(false)
         switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
     }

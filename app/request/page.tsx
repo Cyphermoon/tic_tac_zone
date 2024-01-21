@@ -78,6 +78,11 @@ export default function GameRequest() {
 
 
     const handleGameStart = () => {
+        if (gameConfig.roundsToWin > gameConfig.totalRounds) {
+            alert("Rounds to win cannot be greater than total rounds")
+            return;
+        }
+
         updateGameConfig(gameConfig)
         updatePlayer1({
             ...player1,
