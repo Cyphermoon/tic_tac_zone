@@ -41,11 +41,13 @@ export const useGameRepresentation = create<GameRepresentationStateProps>(set =>
     round: 0,
     timer: 0,
     pause: false,
+    distortedGhost: false,
     updateGameConfig: (game: GameConfigType) => set({gameConfig: {...game}}),
     updatePlayer1: (player: GamePlayerProps) => set({player1: {...player}}),
     updatePlayer2: (player: GamePlayerProps) => set({player2: {...player}}),
     updateDraws: (draws: number) => set({draws}),
     updateTimer: (timer: number) => set({timer}),
     updatePause: (pause: boolean) => set({pause}),
-    updateRound: (round: number) => set({round})
+    updateRound: (round: number) => set({round}),
+    updateDistortedGhost: (distortedGhost: boolean) => set({distortedGhost})
 }))

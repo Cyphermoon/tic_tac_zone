@@ -4,6 +4,7 @@ import React from 'react'
 import { GameAction, GameConfigType, ViewModeType } from './type';
 import { Switch, SwitchThumb } from '@radix-ui/react-switch';
 import Button from '../common/Button';
+import { useGameMode } from '../Home/store';
 
 
 
@@ -28,6 +29,8 @@ type BoardSelectionType = Omit<Props, "mode" | "handleGameStart">
 
 
 const GameConfig = ({ game, mode, dispatch, handleGameStart }: Props) => {
+    const gameMode = useGameMode(state => state.gameMode)
+
     const handleTimerChange = (number: number) => {
         if (mode === "edit") {
             dispatch({ type: "updateTimer", payload: number });
@@ -72,18 +75,21 @@ const GameConfig = ({ game, mode, dispatch, handleGameStart }: Props) => {
                     <OptionHeader text="Rounds to Win" />
                     <NumberInput number={game.roundsToWin} onNumberChange={handleRoundsToWinChange} disabled={mode === "view"} />
                 </div>
+                {gameMode !== "ai" &&
+                    <>
+                        <OptionHeader text="Distorted Mode" />
+                        <div className='flex items-center space-x-2'>
+                            <Switch
+                                className="w-[52px] h-[25px] relative bg-gray-600 rounded-xl rdx-state-checked:bg-accent focus:shadow-black outline-none"
+                                checked={game.distortedMode}
+                                onCheckedChange={(checked) => handleDistortedModeChange(checked)}
+                                disabled={mode === "view"}
+                            >
+                                <SwitchThumb className="block w-[21px] h-[21px] bg-white rounded-3xl shadow-[0_2px_2px] transition-transform duration-100 translate-x-0.5 will-change-transform rdx-state-checked:translate-x-[27px]" />
+                            </Switch>
+                        </div>
+                    </>}
 
-                <OptionHeader text="Distorted Mode" />
-                <div className='flex items-center space-x-2'>
-                    <Switch
-                        className="w-[52px] h-[25px] relative bg-gray-600 rounded-xl rdx-state-checked:bg-accent focus:shadow-black outline-none"
-                        checked={game.distortedMode}
-                        onCheckedChange={(checked) => handleDistortedModeChange(checked)}
-                        disabled={mode === "view"}
-                    >
-                        <SwitchThumb className="block w-[21px] h-[21px] bg-white rounded-3xl shadow-[0_2px_2px] transition-transform duration-100 translate-x-0.5 will-change-transform rdx-state-checked:translate-x-[27px]" />
-                    </Switch>
-                </div>
             </div>
 
             {mode === "edit" && (

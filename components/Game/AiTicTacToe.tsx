@@ -4,7 +4,7 @@ import { useGameRepresentation } from '../Home/store'
 import { GamePlayerProps } from '../Home/type'
 import { resetBoard } from './LocalTicTacToe'
 import TicTacToeBoard from './TicTacToeBoard'
-import { checkWinner, getAvailablePositions, isDraw, minimax, switchPlayer } from './util'
+import { checkWinner, getAvailablePositions, handleCellClicked as _handleCellClicked, isDraw, minimax, switchPlayer } from './util'
 import GameInfoDialog from '../modals/GameInfoModal'
 import Image from 'next/image'
 import Button from '../common/Button'
@@ -34,59 +34,20 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
     const [board, setBoard] = useState(_board);
     const [gameDraw, setGameDraw] = useState(false)
     const [gameWon, setGameWon] = useState(false)
-    const [winner, setWinner] = useState<GamePlayerProps | null>()
+    const [winner, setWinner] = useState<GamePlayerProps>()
 
     const isAITurn = currentPlayer.id === player2.id
     const aiDifficulty = player2.difficulty
 
     // Handle cell clicked event
     const handleCellClicked = useCallback((position: string) => {
-        if (board[position] !== '') return
-
-        let newBoard = { ...board, [position]: currentPlayer.mark }
-        let finalWinner = false
-
-        // Update board
-        updateTimeLeft(countdown)
-        setBoard(newBoard)
-
-        // Check for winner
-        if (checkWinner(currentPlayer.mark, newBoard)) {
-            if (currentPlayer.id === player1.id) {
-                setWinner(player1)
-                let score = player1.score + 1
-                if (score <= roundsToWin)
-                    updatePlayer1({ ...player1, score })
-
-            }
-            else {
-                setWinner(player2)
-                let score = player2.score + 1
-                if (score <= roundsToWin)
-                    updatePlayer2({ ...player2, score })
-
-            }
-
-            resetBoard(setBoard)
-
-        }
-
-        // Check for draw
-        if (isDraw(newBoard)) {
-            resetBoard(setBoard)
-        }
-
-
-        switchPlayer(currentPlayer, player1, player2, setCurrentPlayer, finalWinner)
-
-    }, [board, countdown, currentPlayer, player1, player2, roundsToWin, setCurrentPlayer, updatePlayer1, updatePlayer2, updateTimeLeft])
-
+        return _handleCellClicked(position, board, currentPlayer, player1, player2, roundsToWin, countdown, updateTimeLeft, setBoard, resetBoard, setWinner, updatePlayer1, updatePlayer2, setCurrentPlayer)
+    }, [board, currentPlayer, player1, player2, roundsToWin, countdown, updateTimeLeft, updatePlayer1, updatePlayer2, setCurrentPlayer]);
 
     // Handle easy AI move
     const handleEasyAiMove = useCallback(() => {
         let availablePositions = getAvailablePositions(board)
         let randomPosition = availablePositions[Math.floor(Math.random() * availablePositions.length)]
-
         return randomPosition
     }, [board])
 
@@ -119,39 +80,27 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
         return aiMove
     }, [board, player1.mark, player2.mark]);
 
-
-
+    // Handle hard AI move
     const handleHardAiMove = useCallback(() => {
         // Get available positions
         const availablePositions = getAvailablePositions(board).length
         let move
 
-        //Assign random position if board is empty otherwise use minimax algorithm
+        // Assign random position if board is empty otherwise use minimax algorithm
         if (availablePositions === 9) {
             move = handleEasyAiMove()
         } else {
             move = minimax(board, true, player1, player2)["position"]
         }
 
-        //Ensure move is a string
+        // Ensure move is a string
         if (typeof move === "string")
             return move;
 
         return ""
-
     }, [board, handleEasyAiMove, player1, player2]);
 
-
-    function handleResetScore() {
-        resetBoard(setBoard)
-        updatePlayer1({ ...player1, score: 0 })
-        updatePlayer2({ ...player2, score: 0 })
-        handleCloseModal()
-        switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
-
-    }
-
-
+    // Handle closing the game info modal
     function handleCloseModal(turn: "human" | "ai" | "switch" = "switch") {
         // Reset board and update player score  
         closeModal()
@@ -174,14 +123,13 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
     }
 
     useEffect(() => {
+        // Check if a player has won the game
         if (player1.score >= roundsToWin || player2.score >= roundsToWin) {
             updatePauseGame(true)
             openModal()
         }
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [player1.score, player2.score, roundsToWin])
-
 
     // Perform AI move based on difficulty
     useEffect(() => {
@@ -194,11 +142,9 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
         }
     }, [aiDifficulty, gameDraw, gameWon, handleCellClicked, handleEasyAiMove, handleHardAiMove, handleMediumAiMove, isAITurn])
 
-
     useEffect(() => {
         console.log("matchRound ", matchRound)
     }, [matchRound])
-
 
     return (
         <>
@@ -206,7 +152,6 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
             <GameInfoDialog isOpen={isOpen || false} closeModal={handleCloseModal}>
                 {winner &&
                     <div className='flex flex-col items-center justify-center'>
-
                         <h1 className='text-center text-2xl font-semibold text-secondary'>
                             {
                                 !gameDraw ?
@@ -214,9 +159,7 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
                                     `It's a draw`
                             }
                         </h1>
-
                         {winner.id === player2.id && player2.difficulty === "hard" && <span>You {"can't"} really beat me. The best you can get is a draw </span>}
-
                         <Image alt="Celebration GIF" src="/celebration.gif" width={200} height={200} />
                         <div className='flex flex-col lg:flex-row items-center space-y-4 lg:space-y-0 lg:space-x-5'>
                             <Button variant='muted' onClick={() => handleCloseModal("human")} >
@@ -228,7 +171,6 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
                         </div>
                     </div>
                 }
-
             </GameInfoDialog>
         </>
     )

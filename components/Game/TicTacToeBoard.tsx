@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { BoardType } from './type'
+import { useGameMode, useGameRepresentation } from '../Home/store'
+import { shuffleArray } from './util'
 
 interface Props {
     label: string
@@ -12,11 +14,23 @@ interface CellProps {
     boxType: string
     handleCellClicked: (position: string) => void
     position: string
+    ghost: boolean
 }
 
 
 
 const TicTacToeBoard = ({ label, board, handleCellClicked, currentMarker }: Props) => {
+    const distortedMode = useGameRepresentation(state => state.gameConfig?.distortedMode || false)
+    const distortedGhost = useGameRepresentation(state => state.distortedGhost)
+    const gameMode = useGameMode(state => state.gameMode)
+    const player1 = useGameRepresentation(state => state.player1)
+    const player2 = useGameRepresentation(state => state.player2)
+
+    let positions = Object.keys(board)
+
+    if (distortedMode && gameMode !== "ai") {
+        positions = shuffleArray(positions, `${player1?.id || "hello"}_${player2?.id || "kelvin"}`)
+    }
 
     return (
         <section className='bg-card py-4 px-8 rounded-2xl w-full max-w-md space-y-10 min-h-[421px] flex flex-col items-center'>
@@ -26,16 +40,19 @@ const TicTacToeBoard = ({ label, board, handleCellClicked, currentMarker }: Prop
 
             {/* Displaying Cells */}
             <div className="cells grid grid-cols-3 w-fit" data-currentmarker={currentMarker}>
-                {Object.keys(board).map((position, idx) => {
-                    return (
-                        <Cell
-                            key={idx}
-                            position={position}
-                            boxType={board[position]}
-                            handleCellClicked={handleCellClicked}
-                        />
-                    )
-                })}
+                {
+                    positions
+                        .map((position, idx) => {
+                            return (
+                                <Cell
+                                    key={idx}
+                                    position={position}
+                                    boxType={board[position]}
+                                    ghost={distortedGhost}
+                                    handleCellClicked={handleCellClicked}
+                                />
+                            )
+                        })}
             </div>
 
         </section>
@@ -45,11 +62,15 @@ const TicTacToeBoard = ({ label, board, handleCellClicked, currentMarker }: Prop
 export default TicTacToeBoard
 
 
-const Cell = ({ boxType, handleCellClicked, position }: CellProps) => {
+const Cell = ({ boxType, handleCellClicked, position, ghost }: CellProps) => {
     return (
         <div
             data-boxtype={`${boxType}`}
             onClick={() => handleCellClicked(position)}
-            className='cell relative aspect-square w-[clamp(60px,_calc(100vw/4.5),_80px)] lg:w-[100px] border border-gray-800 cursor-pointer' />
+            className={`cell relative aspect-square w-[clamp(60px,_calc(100vw/4.5),_80px)] lg:w-[100px] border border-gray-800 cursor-pointer`} >
+            {ghost &&
+                <span className='text-xl text-secondary opacity-50'>{position}</span>
+            }
+        </div>
     )
 }

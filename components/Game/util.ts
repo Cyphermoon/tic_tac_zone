@@ -1,5 +1,6 @@
-import { GamePlayerProps } from "../Home/type"
+import { GamePlayerProps, GameRepresentationStateProps } from "../Home/type"
 import { BoardType } from "./type"
+import seedrandom from "seedrandom"
 
 export function switchPlayer(
     currentPlayer: GamePlayerProps,
@@ -67,6 +68,19 @@ export function isDraw(board: BoardType) {
     return Object.values(board).every(cell => cell !== '')
 }
 
+export function shuffleArray(board: string[], seed: string | number) {
+    const rng = seedrandom(seed.toString()); // Create a new seeded random number generator
+    let m = board.length;
+    let t, i // Initialize variables: m is the number of unshuffled elements left, t is a temporary variable for swapping, and i is the index of the element to swap with
+    while (m) { // While there are elements left to shuffle
+        i = Math.floor(rng() * m--); // Pick a remaining element (rng() generates a random number between 0 and 1)
+        t = board[m]; // And swap it with the current element
+        board[m] = board[i];
+        board[i] = t;
+    }
+    return board; // Return the shuffled array
+}
+
 export interface MiniMaxProps {
     score: number,
     position: string | null
@@ -122,4 +136,54 @@ export const minimax = (board: BoardType, isMaximizingPlayer: boolean, player1: 
 
 export function getAvailablePositions(board: BoardType) {
     return Object.keys(board).filter(key => board[key] === '')
+}
+
+export const handleCellClicked = (
+    position: string,
+    board: BoardType,
+    currentPlayer: GamePlayerProps,
+    player1: GamePlayerProps,
+    player2: GamePlayerProps,
+    roundsToWin: number,
+    countdown: number,
+    updateTimeLeft: GameRepresentationStateProps["updateTimer"],
+    setBoard: (board: BoardType) => void,
+    resetBoard: (setBoard: (board: BoardType) => void) => void,
+    setWinner: (player: GamePlayerProps | undefined) => void,
+    updatePlayer1: Function,
+    updatePlayer2: GameRepresentationStateProps["updatePlayer2"],
+    setCurrentPlayer: (player: GamePlayerProps) => void
+) => {
+    if (board[position] !== '') return
+
+    let newBoard = { ...board, [position]: currentPlayer.mark }
+
+    // Update board
+    updateTimeLeft(countdown)
+    setBoard(newBoard)
+
+    // Check for winner and update player score
+    if (checkWinner(currentPlayer.mark, newBoard)) {
+        if (currentPlayer.id === player1.id) {
+            setWinner(player1)
+            let score = player1.score + 1
+            if (score <= roundsToWin)
+                updatePlayer1({ ...player1, score })
+        } else {
+            setWinner(player2)
+            let score = player2.score + 1
+            if (score <= roundsToWin)
+                updatePlayer2({ ...player2, score })
+        }
+
+        resetBoard(setBoard)
+    }
+
+    // Check for draw
+    if (isDraw(newBoard)) {
+        resetBoard(setBoard)
+    }
+
+    // switch to the other player
+    switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
 }

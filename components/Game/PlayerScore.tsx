@@ -2,8 +2,9 @@ import React, { useEffect } from 'react'
 import UserAvatar from '../common/UserAvatar'
 import CircularBar from '../common/CircularBar'
 import { GamePlayerProps } from '../Home/type'
-import { useGameRepresentation } from '../Home/store'
+import { useGameMode, useGameRepresentation } from '../Home/store'
 import { increaseOtherPlayerScore, switchPlayer } from './util'
+import Button from '../common/Button'
 
 interface Props {
     name: string
@@ -22,10 +23,23 @@ const PlayerScore = ({ name, id, imageURL, countdown, player1, player2, currentP
     const matchRound = useGameRepresentation(state => state.round)
     const roundsToWin = useGameRepresentation(state => state.gameConfig?.roundsToWin || 1)
     const percentage = countdown && ((timeLeft || 0) / countdown) * 100
+    const gameMode = useGameMode(state => state.gameMode)
+    const distortedMode = useGameRepresentation(state => state.gameConfig?.distortedMode || false)
+
+
     const updatePlayer1 = useGameRepresentation(state => state.updatePlayer1)
     const updatePlayer2 = useGameRepresentation(state => state.updatePlayer2)
     const updateTimeLeft = useGameRepresentation(state => state.updateTimer)
     const updateMatchRound = useGameRepresentation(state => state.updateRound)
+    const updateDistortedMode = useGameRepresentation(state => state.updateDistortedGhost)
+
+    function toggleDistorted() {
+        updateDistortedMode(true)
+
+        setTimeout(() => {
+            updateDistortedMode(false)
+        }, 1000)
+    }
 
     useEffect(() => {
         if (timeLeft === undefined) return
@@ -70,10 +84,13 @@ const PlayerScore = ({ name, id, imageURL, countdown, player1, player2, currentP
                 <div className='flex flex-col -mt-4 w-fit'>
                     <span className='text-sm text-center lg:text-left text-gray-500 font-light'>Current Player</span>
                     <h3 className='text-lg lg:text-2xl font-medium text-gray-700'>{name}</h3>
+                    {distortedMode && gameMode !== "ai" && <button className='px-2 py-1 rounded-xl text-sm bg-secondary text-primary' onClick={toggleDistorted}>Show Distorted</button>}
+
                 </div>
             </div>
             {
                 countdown &&
+
                 <div className='flex flex-col items-center space-y-0.5 w-fit'>
                     <h6 className='font-light text-sm'>Timer</h6>
                     <CircularBar percentage={percentage || 0} radius={60} viewBoxDimension={150} text={`${timeLeft}s`} />
