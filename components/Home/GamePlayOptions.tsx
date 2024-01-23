@@ -6,6 +6,7 @@ import OnlinePlayerOptions from './OnlinePlayerOptions';
 import { useAIDifficulty, useGameMode, useLocalPlayer } from './store';
 import { LocalPlayersProps } from './type';
 
+
 interface TabProps {
     text: string;
     handleClick: (name: string) => void;

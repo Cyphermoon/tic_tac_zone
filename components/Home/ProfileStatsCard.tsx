@@ -1,18 +1,13 @@
 
-import React from 'react'
-import { UserAvatarProps } from '../common/type'
-import UserAvatar from '../common/UserAvatar'
-import CircularBar from '../common/CircularBar'
 import Button from '../common/Button'
+import CircularBar from '../common/CircularBar'
+import UserAvatar from '../common/UserAvatar'
+import { PlayerProps } from './type'
 
-interface Props {
-    id: string
-    avatar: UserAvatarProps
-    matches: number
-    wins: number
-    loss: number
+type _Props = Omit<PlayerProps, "isAnonymous" | "email">
+
+interface Props extends _Props {
     handleChallenge?: () => void
-    online?: boolean
 }
 
 interface StatsInfoProps {
@@ -21,9 +16,11 @@ interface StatsInfoProps {
 
 }
 
-const ProfileStatsCard = ({ avatar, matches, wins, loss, handleChallenge, online }: Props) => {
+const ProfileStatsCard = ({ matches, name, win, loss, handleChallenge, online }: Props) => {
 
-    const percentage = Math.round((wins / matches) * 100)
+    let percentage = Math.round((win / matches) * 100)
+
+    if (isNaN(percentage)) percentage = 0
 
     return (
         <section className="bg-card p-5 w-full max-w-sm rounded-3xl flex flex-col items-start space-y-6">
@@ -35,8 +32,11 @@ const ProfileStatsCard = ({ avatar, matches, wins, loss, handleChallenge, online
 
             <div className='flex items-center justify-between w-full space-x-6 mb-5'>
                 <div className='text-center space-y-3'>
-                    <UserAvatar {...avatar} className='w-[120px] h-[120px]' />
-                    <h2 className='font-bold text-xl'>{avatar.name}</h2>
+                    <UserAvatar
+                        name={name}
+                        id={name}
+                        className='w-[120px] h-[120px]' />
+                    <h2 className='font-bold text-xl'>{name}</h2>
                 </div>
                 <div className='flex flex-col space-y-1.5 w-fit text-center'>
                     <span className='whitespace-nowrap text-sm'>Player Rating</span>
@@ -45,7 +45,7 @@ const ProfileStatsCard = ({ avatar, matches, wins, loss, handleChallenge, online
             </div>
             <div className='flex items-center space-x-6'>
                 <StatsInfo title='Matches' value={matches} />
-                <StatsInfo title='Wins' value={wins} />
+                <StatsInfo title='Wins' value={win} />
                 <StatsInfo title='Loss' value={loss} />
             </div>
 

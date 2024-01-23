@@ -7,7 +7,9 @@ import PlayerCard from "@/components/Request/PlayerCard";
 import { gameConfigReducer } from "@/components/Request/reducer";
 import { ViewModeType } from "@/components/Request/type";
 import Container from "@/components/common/Container";
+import MonitorOnlineStatus from "@/components/common/MonitorOnlineStatus";
 import Navbar from "@/components/common/Navbar";
+import ProtectedRoute from "@/components/common/ProtectedRoute";
 import { AiCharacters, DEFAULT_GAME_CONFIG } from "@/game_settings";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useReducer, useState } from "react";
@@ -110,63 +112,67 @@ export default function GameRequest() {
 
 
     return (
-        <Container as="main" className="pt-4">
-            <Navbar />
-            {
-                gameMode && player1 && player2 ?
-                    <>
-                        <div className="flex flex-col lg:flex-row items-center lg:justify-between space-y-8 lg:space-y-0 mb-7">
-                            <MobilePlayersCard
-                                players={[
-                                    { ...player1, mark: "x" },
-                                    { ...player2, mark: "o" }
-                                ]}
-                                startGame={handleGameStart}
-                            />
+        <ProtectedRoute>
+            <MonitorOnlineStatus >
+                <Container as="main" className="pt-4">
+                    <Navbar />
+                    {
+                        gameMode && player1 && player2 ?
+                            <>
+                                <div className="flex flex-col lg:flex-row items-center lg:justify-between space-y-8 lg:space-y-0 mb-7">
+                                    <MobilePlayersCard
+                                        players={[
+                                            { ...player1, mark: "x" },
+                                            { ...player2, mark: "o" }
+                                        ]}
+                                        startGame={handleGameStart}
+                                    />
 
-                            {gameMode === "online" &&
-                                <PlayerCard
-                                    name="Cypher Moon"
-                                    id="cypher-273"
-                                    mark="x"
-                                    wins={10}
-                                    loss={0} />
-                            }
+                                    {gameMode === "online" &&
+                                        <PlayerCard
+                                            name="Cypher Moon"
+                                            id="cypher-273"
+                                            mark="x"
+                                            wins={10}
+                                            loss={0} />
+                                    }
 
-                            {gameMode !== "online" &&
-                                <PlayerCard
-                                    name={player1.name}
-                                    id={player1.id}
-                                    mark={player1.mark} />
-                            }
+                                    {gameMode !== "online" &&
+                                        <PlayerCard
+                                            name={player1.name}
+                                            id={player1.id}
+                                            mark={player1.mark} />
+                                    }
 
-                            <GameConfig game={gameConfig} dispatch={dispatch} mode={viewMode} handleGameStart={handleGameStart} />
+                                    <GameConfig game={gameConfig} dispatch={dispatch} mode={viewMode} handleGameStart={handleGameStart} />
 
-                            {gameMode !== "online" &&
-                                <PlayerCard
-                                    name={player2.name}
-                                    id={player2.id}
-                                    mark={player2.mark}
-                                    className={player2.className} />
-                            }
+                                    {gameMode !== "online" &&
+                                        <PlayerCard
+                                            name={player2.name}
+                                            id={player2.id}
+                                            mark={player2.mark}
+                                            className={player2.className} />
+                                    }
 
-                            {gameMode === "online" &&
-                                <PlayerCard
-                                    name="Jack Smith"
-                                    id="jack-273"
-                                    mark="o"
-                                    wins={0}
-                                    loss={10} />
-                            }
-                        </div>
-                        {gameMode === "online" && <GameChat />}
+                                    {gameMode === "online" &&
+                                        <PlayerCard
+                                            name="Jack Smith"
+                                            id="jack-273"
+                                            mark="o"
+                                            wins={0}
+                                            loss={10} />
+                                    }
+                                </div>
+                                {gameMode === "online" && <GameChat />}
 
-                    </> :
-                    <div>
-                        <h1>Game mode not selected</h1>
-                    </div>
-            }
+                            </> :
+                            <div>
+                                <h1>Game mode not selected</h1>
+                            </div>
+                    }
 
-        </Container>
+                </Container>
+            </MonitorOnlineStatus>
+        </ProtectedRoute>
     )
 }

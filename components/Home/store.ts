@@ -19,12 +19,15 @@ export const useCurrentPlayer = create<CurrentPlayerStateProps>((set) => ({
     isAnonymous: true,
     name: "",
     id: "",
+    imageUrl: null,
     email: "",
-    match: 20,
+    match: 0,
     win: 0,
     loss: 0,
-    draw: 0,
-    updateCurrentPlayer: (player: PlayerProps) => set({...player})
+    matches: 0, 
+    online: false, 
+    updateCurrentPlayer: (player: PlayerProps) => set({...player}),
+    updateOnline: (online: boolean) => set({online})
 }))
 
 export const useLocalPlayer = create<LocalPlayerStateProps>((set) => ({
@@ -51,3 +54,4 @@ export const useGameRepresentation = create<GameRepresentationStateProps>(set =>
     updateRound: (round: number) => set({round}),
     updateDistortedGhost: (distortedGhost: boolean) => set({distortedGhost})
 }))
+

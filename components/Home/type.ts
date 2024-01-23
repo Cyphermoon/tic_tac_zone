@@ -28,11 +28,12 @@ export type PlayerProps = {
     id: string
     name: string
     isAnonymous: boolean
-    matches?: number
-    win?: number
-    loss?: number
-    draw?: number
-    email?: string
+    matches: number
+    win: number
+    loss: number
+    email: string
+    imageUrl: null | string
+    online: boolean
 }
 
 export type LocalPlayerProps = {
@@ -42,6 +43,7 @@ export type LocalPlayerProps = {
 
 export type CurrentPlayerStateProps = PlayerProps & {
     updateCurrentPlayer: (player: PlayerProps) => void
+    updateOnline: (online: boolean) => void
 
 }
 

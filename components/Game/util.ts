@@ -2,6 +2,7 @@ import { GamePlayerProps, GameRepresentationStateProps } from "../Home/type"
 import { BoardType } from "./type"
 import seedrandom from "seedrandom"
 
+// Function to switch the current player
 export function switchPlayer(
     currentPlayer: GamePlayerProps,
     player1: GamePlayerProps,
@@ -19,7 +20,7 @@ export function switchPlayer(
     }
 }
 
-// Function to reduce player score
+// Function to increase the score of the other player
 export function increaseOtherPlayerScore(
     currentPlayer: GamePlayerProps,
     player1: GamePlayerProps,
@@ -30,13 +31,10 @@ export function increaseOtherPlayerScore(
     if (currentPlayer.id === player1.id) {
         let score = player2.score + 1
         updatePlayer2({ ...player2, score })
-
-
     } else {
         let score = player1.score + 1
         updatePlayer1({ ...player1, score })
     }
-
 }
 
 // Function to check if a player has won
@@ -64,36 +62,39 @@ export function checkWinner(marker: string, board: BoardType) {
     return isMarkerWinner
 }
 
+// Function to check if the game is a draw
 export function isDraw(board: BoardType) {
     return Object.values(board).every(cell => cell !== '')
 }
 
+// Function to shuffle an array using a seed
 export function shuffleArray(board: string[], seed: string | number) {
     const rng = seedrandom(seed.toString()); // Create a new seeded random number generator
     let m = board.length;
-    let t, i // Initialize variables: m is the number of unshuffled elements left, t is a temporary variable for swapping, and i is the index of the element to swap with
-    while (m) { // While there are elements left to shuffle
-        i = Math.floor(rng() * m--); // Pick a remaining element (rng() generates a random number between 0 and 1)
-        t = board[m]; // And swap it with the current element
+    let t, i 
+    while (m) { 
+        i = Math.floor(rng() * m--); 
+        t = board[m]; 
         board[m] = board[i];
         board[i] = t;
     }
-    return board; // Return the shuffled array
+    return board;
 }
 
+// Interface for the MiniMax algorithm
 export interface MiniMaxProps {
     score: number,
     position: string | null
 }
 
-
-export const minimax = (board: BoardType, isMaximizingPlayer: boolean, player1: GamePlayerProps, player2: GamePlayerProps):MiniMaxProps => {
+// MiniMax algorithm implementation
+export const minimax = (board: BoardType, isMaximizingPlayer: boolean, player1: GamePlayerProps, player2: GamePlayerProps): MiniMaxProps => {
     if (checkWinner(player1.mark, board)) {
-        return {score:-1, position:null};
+        return { score: -1, position: null };
     } else if (checkWinner(player2.mark, board)) {
-        return {score:1, position:null};
+        return { score: 1, position: null };
     } else if (isDraw(board)) {
-        return {score:0, position: null};
+        return { score: 0, position: null };
     }
 
     if (isMaximizingPlayer) {
@@ -106,13 +107,13 @@ export const minimax = (board: BoardType, isMaximizingPlayer: boolean, player1: 
                 let state = minimax(board, false, player1, player2);
                 board[position] = '';
 
-                if(state.score > bestScore){
+                if (state.score > bestScore) {
                     bestScore = state.score
                     bestPosition = position
                 }
             }
         }
-        return {score:bestScore, position: bestPosition};
+        return { score: bestScore, position: bestPosition };
 
     } else {
         let bestScore = Infinity;
@@ -121,23 +122,25 @@ export const minimax = (board: BoardType, isMaximizingPlayer: boolean, player1: 
         for (let position of Object.keys(board)) {
             if (board[position] === '') {
                 board[position] = player1.mark;
-                let state = minimax(board,true, player1, player2);
+                let state = minimax(board, true, player1, player2);
                 board[position] = '';
 
-                if(state.score < bestScore){   
+                if (state.score < bestScore) {
                     bestScore = state.score
                     bestPosition = position
                 }
             }
         }
-        return {score: bestScore, position: bestPosition};
+        return { score: bestScore, position: bestPosition };
     }
 }
 
+// Function to get the available positions on the board
 export function getAvailablePositions(board: BoardType) {
     return Object.keys(board).filter(key => board[key] === '')
 }
 
+// Function to handle cell clicked event
 export const handleCellClicked = (
     position: string,
     board: BoardType,
@@ -184,6 +187,6 @@ export const handleCellClicked = (
         resetBoard(setBoard)
     }
 
-    // switch to the other player
+    // Switch to the other player
     switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
 }

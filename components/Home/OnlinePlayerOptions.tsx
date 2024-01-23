@@ -1,9 +1,14 @@
 import { useModal } from '@/hooks/index.hook'
-import React from 'react'
+import React, { useState } from 'react'
 import UserAvatar from '../common/UserAvatar'
 import PlayerChallengeModal from '../modals/PlayerChallengeModal'
 import ProfileStatsCard from './ProfileStatsCard'
-import { PlayerCardProps, SelectedPlayerType } from './type'
+import { PlayerCardProps, PlayerProps, SelectedPlayerType } from './type'
+import { useCollectionData } from "react-firebase-hooks/firestore"
+import { collection, query, where } from 'firebase/firestore';
+import { firestoreDB } from '@/firebase';
+import { getUser } from './util'
+import { useCurrentPlayer } from './store'
 
 
 type _CompactPlayerCard = Omit<PlayerCardProps, 'matches' | 'wins' | 'loss' | 'handleChallenge'>
@@ -21,25 +26,47 @@ const players: SelectedPlayerType[] = [
 
 const OnlinePlayerOptions = ({ handleChallenge }: Props) => {
     const { isOpen, openModal, closeModal } = useModal(false)
-    const [selectedPlayer, setSelectedPlayer] = React.useState<SelectedPlayerType | undefined>(undefined)
+    const currentId = useCurrentPlayer(state => state.id)
+    const usersRef = query(collection(firestoreDB, "users"), where("id", "!=", currentId))
+
+    const [players, loading, error] = useCollectionData(usersRef);
+    const [selectedPlayer, setSelectedPlayer] = useState<PlayerProps | null>(null)
 
     function handlePlayerSelected(id: string) {
-        setSelectedPlayer(() => players.find(player => player.id === id))
+        // setSelectedPlayer(() => players.find(player => player.id === id))
+        getUser({ id })
+            .then(player => setSelectedPlayer(player as PlayerProps))
     }
 
     return (
         <>
             <section className='grid grid-cols-2 lg:grid-cols-[repeat(auto-fill,_minmax(250px,_1fr))] gap-4 lg:gap-8'>
-                {players.map((player, i) => (
-                    <div key={i} onClick={openModal} className='cursor-pointer'>
-                        <PlayerCard {...player} handleClick={handlePlayerSelected} />
-                    </div>
-                ))}
+                {loading && <h1>Loading Players ......</h1>}
+                {!loading && players &&
+
+                    players.map((player, i) => (
+                        <div key={i} onClick={openModal} className='cursor-pointer'>
+                            <PlayerCard
+                                avatar={{ name: player.name, id: player.id }}
+                                id={player.id}
+                                online={player.online}
+                                handleClick={handlePlayerSelected} />
+                        </div>
+                    ))
+                }
             </section>
 
             {isOpen && selectedPlayer &&
                 <PlayerChallengeModal closeModal={closeModal} isOpen={isOpen}>
-                    <ProfileStatsCard {...selectedPlayer} handleChallenge={() => handleChallenge(selectedPlayer.id)} />
+                    <ProfileStatsCard
+                        id={selectedPlayer.id}
+                        name={selectedPlayer.name}
+                        imageUrl={selectedPlayer.imageUrl}
+                        matches={selectedPlayer.matches || 0}
+                        win={selectedPlayer.win || 0}
+                        loss={selectedPlayer.loss || 0}
+                        online={true}
+                        handleChallenge={() => handleChallenge(selectedPlayer.id)} />
                 </PlayerChallengeModal>
             }
         </>
