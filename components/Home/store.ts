@@ -1,6 +1,6 @@
 
 import {create} from 'zustand';
-import { AiDifficultyProps, CurrentPlayerStateProps, GameMode, GameModeProps, GamePlayerProps, GameRepresentationStateProps, LocalPlayerProps, LocalPlayerStateProps, PlayerProps } from './type';
+import { AiDifficultyProps, CurrentPlayerStateProps, GameMode, GameModeProps, GamePlayerProps, GameRepresentationStateProps, LocalPlayerProps, LocalPlayerStateProps, OnlineGameStateRepresentationProps, PlayerProps } from './type';
 import { GameConfigType } from '../Request/type';
 
 
@@ -53,5 +53,11 @@ export const useGameRepresentation = create<GameRepresentationStateProps>(set =>
     updatePause: (pause: boolean) => set({pause}),
     updateRound: (round: number) => set({round}),
     updateDistortedGhost: (distortedGhost: boolean) => set({distortedGhost})
+}))
+
+
+export const useOnlineGameId = create<OnlineGameStateRepresentationProps>((set) => ({
+    id: null,
+    updateOnlineGameId: (id: string) => set({id})
 }))
 

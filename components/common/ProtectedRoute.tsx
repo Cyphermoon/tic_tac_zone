@@ -36,11 +36,8 @@ const ProtectedRoute = ({ children }: Props) => {
 
     if (error) return <h1>{error.message}</h1>
 
-    return (
-        <>
-            {children}
-        </>
-    )
+    if (user) return <>{children}</>
+
 }
 
 export default ProtectedRoute

@@ -1,10 +1,12 @@
+import { DEFAULT_GAME_CONFIG, _board } from '@/game_settings';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import AiOptions from './AiOptions';
 import LocalOption from './LocalOption';
 import OnlinePlayerOptions from './OnlinePlayerOptions';
-import { useAIDifficulty, useGameMode, useLocalPlayer } from './store';
-import { LocalPlayersProps } from './type';
+import { useAIDifficulty, useCurrentPlayer, useGameMode, useLocalPlayer, useOnlineGameId } from './store';
+import { LocalPlayersProps, OnlinePlayerProps, PlayerProps } from './type';
+import { createChat, updateOrGetGame } from './util';
 
 
 interface TabProps {
@@ -21,6 +23,8 @@ const GamePlayOptions = () => {
     const updateGameMode = useGameMode(state => state.updateGameMode)
     const updateAIDifficulty = useAIDifficulty(state => state.updateAIDifficulty)
     const updateLocalPlayer = useLocalPlayer(state => state.updateLocalPlayer)
+    const updateOnlineGameId = useOnlineGameId(state => state.updateOnlineGameId)
+    const currentPlayer = useCurrentPlayer(state => state)
 
     function handleTabChange(tabName: string) {
         setSelectedTab(tabName)
@@ -34,14 +38,67 @@ const GamePlayOptions = () => {
 
     }
 
-    function handleChallenge(id: string) {
-        updateGameMode("online")
-        router.push("/request")
+    async function handleChallenge(selectedPlayer: PlayerProps) {
+        // create or get the current game  
+        // update it locally
+        const gameId = [currentPlayer.id, selectedPlayer.id].sort().join('-') + "-game";
+
+        const { boardType, ...rest } = DEFAULT_GAME_CONFIG
+
+
+        const gameData = {
+            player1: {
+                id: currentPlayer.id,
+                name: currentPlayer.name,
+                mark: "x",
+                photoURL: currentPlayer.imageUrl,
+                score: 0,
+                online: currentPlayer.online,
+                view: "edit",
+            },
+            player2: {
+                id: selectedPlayer.id,
+                name: selectedPlayer.name,
+                mark: "o",
+                photoURL: selectedPlayer.imageUrl,
+                score: 0,
+                online: selectedPlayer.online,
+                view: "view"
+            },
+            board: _board,
+            config: rest,
+            currentPlayer: {
+                id: currentPlayer.id,
+                name: currentPlayer.name,
+                mark: "x",
+                photoURL: currentPlayer.imageUrl,
+                score: 0,
+                online: currentPlayer.online
+            },
+            boardOpened: true,
+            isDraw: false,
+            initiatingPlayerId: currentPlayer.id,
+        }
+
+        updateOrGetGame(gameId, gameData)
+            .then(() => {
+                updateGameMode("online")
+                updateOnlineGameId(gameId)
+            })
+            .catch((err) => {
+                console.error(err)
+            })
+
+        createChat(gameId, [currentPlayer.id, selectedPlayer.id])
+            .then(() => {
+                router.push("/request")
+            })
+            .catch((err) => {
+                console.error(err)
+            })
     }
 
     function handleLocalPlayerStart(players: LocalPlayersProps) {
-        // TODO: generate random id for player 2
-
         updateGameMode("local")
         updateLocalPlayer({
             name: players.player2.name,

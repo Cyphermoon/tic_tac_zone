@@ -1,5 +1,7 @@
 "use client";
-import { useAIDifficulty, useCurrentPlayer, useGameMode, useGameRepresentation, useLocalPlayer } from "@/components/Home/store";
+import { useAIDifficulty, useCurrentPlayer, useGameMode, useGameRepresentation, useLocalPlayer, useOnlineGameId } from "@/components/Home/store";
+import { OnlineGameDataProps } from "@/components/Home/type";
+import { updateOrGetGame } from "@/components/Home/util";
 import GameChat from "@/components/Request/GameChat";
 import GameConfig from "@/components/Request/GameConfig";
 import MobilePlayersCard from "@/components/Request/MobilePlayersCard";
@@ -10,9 +12,12 @@ import Container from "@/components/common/Container";
 import MonitorOnlineStatus from "@/components/common/MonitorOnlineStatus";
 import Navbar from "@/components/common/Navbar";
 import ProtectedRoute from "@/components/common/ProtectedRoute";
+import { firestoreDB } from "@/firebase";
 import { AiCharacters, DEFAULT_GAME_CONFIG } from "@/game_settings";
+import { DocumentData, DocumentReference, doc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useReducer, useState } from "react";
+import { useDocumentData } from "react-firebase-hooks/firestore";
 
 
 // TODO: remove distorted mode for AI
@@ -22,9 +27,13 @@ export default function GameRequest() {
     const router = useRouter()
     const [gameConfig, dispatch] = useReducer(gameConfigReducer, DEFAULT_GAME_CONFIG);
     const [viewMode, setViewMode] = useState<ViewModeType>("view")
-
     const gameMode = useGameMode(state => state.gameMode)
     const localPlayer = useLocalPlayer(state => state)
+
+    const onlineGameId = useOnlineGameId(state => state.id)
+    const onlineGameRef = doc(firestoreDB, "games", onlineGameId || "26")
+    const [onlineGameData, loading, error] = useDocumentData<OnlineGameDataProps>(onlineGameRef as DocumentReference<OnlineGameDataProps, DocumentData>);
+    const isOnlineGame = gameMode === "online"
 
     const aiDifficulty = useAIDifficulty(state => state.aiDifficulty)
     const currentPlayer = useCurrentPlayer(state => state)
@@ -78,6 +87,37 @@ export default function GameRequest() {
         setViewMode("edit")
     }, [currentPlayer.id, currentPlayer.name, localPlayer.id, localPlayer.name])
 
+    const populateOnlineGame = useCallback(async () => {
+        // quit if no online game id
+        if (!onlineGameId) return
+
+        // get game data
+        const gameData = await updateOrGetGame(onlineGameId)
+
+        // quit if no game data
+        if (!gameData) return
+
+        setPlayer1({
+            name: gameData.player1.name,
+            id: gameData.player1.id,
+            mark: gameData.player1.mark,
+            view: gameData.player1.view,
+        })
+
+        setPlayer2({
+            name: gameData.player2.name,
+            id: gameData.player2.id,
+            mark: gameData.player2.mark,
+            view: gameData.player2.view,
+        })
+
+        if (gameData.player1.id === gameData.initiatingPlayerId) {
+            setViewMode("edit")
+        } else {
+            setViewMode("view")
+        }
+    }, [onlineGameId])
+
 
     const handleGameStart = () => {
         if (gameConfig.roundsToWin > gameConfig.totalRounds) {
@@ -108,7 +148,10 @@ export default function GameRequest() {
 
         if (gameMode === "local")
             populateLocalGame()
-    }, [gameMode, populateAIGame, populateLocalGame])
+        if (gameMode === "online") {
+            populateOnlineGame()
+        }
+    }, [gameMode, populateAIGame, populateLocalGame, populateOnlineGame])
 
 
     return (
@@ -122,31 +165,33 @@ export default function GameRequest() {
                                 <div className="flex flex-col lg:flex-row items-center lg:justify-between space-y-8 lg:space-y-0 mb-7">
                                     <MobilePlayersCard
                                         players={[
-                                            { ...player1, mark: "x" },
-                                            { ...player2, mark: "o" }
+                                            { ...player1, mark: player1.mark },
+                                            { ...player2, mark: player2.mark }
                                         ]}
                                         startGame={handleGameStart}
                                     />
 
-                                    {gameMode === "online" &&
-                                        <PlayerCard
-                                            name="Cypher Moon"
-                                            id="cypher-273"
-                                            mark="x"
-                                            wins={10}
-                                            loss={0} />
-                                    }
 
-                                    {gameMode !== "online" &&
+
+                                    {gameMode &&
                                         <PlayerCard
                                             name={player1.name}
                                             id={player1.id}
                                             mark={player1.mark} />
                                     }
 
-                                    <GameConfig game={gameConfig} dispatch={dispatch} mode={viewMode} handleGameStart={handleGameStart} />
+                                    <GameConfig
+                                        game={!isOnlineGame ? gameConfig : onlineGameData?.config}
+                                        dispatch={dispatch}
+                                        mode={viewMode}
+                                        handleGameStart={handleGameStart}
+                                        online={{
+                                            loading,
+                                            player1View: player1.view,
+                                            player1Id: player1.id,
+                                        }} />
 
-                                    {gameMode !== "online" &&
+                                    {gameMode &&
                                         <PlayerCard
                                             name={player2.name}
                                             id={player2.id}
@@ -154,20 +199,12 @@ export default function GameRequest() {
                                             className={player2.className} />
                                     }
 
-                                    {gameMode === "online" &&
-                                        <PlayerCard
-                                            name="Jack Smith"
-                                            id="jack-273"
-                                            mark="o"
-                                            wins={0}
-                                            loss={10} />
-                                    }
                                 </div>
                                 {gameMode === "online" && <GameChat />}
 
                             </> :
                             <div>
-                                <h1>Game mode not selected</h1>
+                                <h1>Game mode or players not selected</h1>
                             </div>
                     }
 

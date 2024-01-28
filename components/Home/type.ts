@@ -1,3 +1,4 @@
+import { BoardType } from "../Game/type"
 import { GameConfigType } from "../Request/type"
 import { UserAvatarProps } from "../common/type"
 
@@ -34,6 +35,24 @@ export type PlayerProps = {
     email: string
     imageUrl: null | string
     online: boolean
+}
+
+export type OnlinePlayerProps = PlayerProps & {
+    score: number
+    mark: string
+    view: string
+}
+
+
+export interface OnlineGameDataProps {
+    player1: OnlinePlayerProps;
+    player2: OnlinePlayerProps;
+    board: BoardType;
+    config: GameConfigType;
+    currentPlayer: OnlinePlayerProps;
+    boardOpened: boolean;
+    isDraw: boolean;
+    initiatingPlayerId: string
 }
 
 export type LocalPlayerProps = {
@@ -96,4 +115,12 @@ export type GameRepresentationStateProps = {
     updatePause: (pause: boolean) => void
     updateRound: (round: number) => void
     updateDistortedGhost: (distortedGhost: boolean) => void
+}
+
+export type OnlineGameIdProps = {
+    id: string | null
+}
+
+export type OnlineGameStateRepresentationProps = OnlineGameIdProps & {
+    updateOnlineGameId: (id: string) => void
 }

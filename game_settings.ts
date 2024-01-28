@@ -6,15 +6,18 @@ export const DEFAULT_GAME_CONFIG: GameConfigType = {
         dimension: "3",
         value: "3x3 Board",
         id: "3x3"
-    }, {
-        dimension: "4",
-        value: "4x4 Board",
-        id: "4x4"
-    }, {
-        dimension: "5x5",
-        value: "5x5 Board",
-        id: "5x5"
-    }],
+    }, 
+    // {
+    //     dimension: "4",
+    //     value: "4x4 Board",
+    //     id: "4x4"
+    // }, 
+    // {
+    //     dimension: "5x5",
+    //     value: "5x5 Board",
+    //     id: "5x5"
+    // }
+],
     currentBoardType: {
         dimension: "3",
         value: "3x3 Board",
@@ -59,4 +62,4 @@ export const _board: BoardType = {
     7: '',
     8: '',
     9: '',
-}// Function to check if a playerhaswonthegame  
+}

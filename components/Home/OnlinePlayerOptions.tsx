@@ -1,28 +1,23 @@
+import { firestoreDB } from '@/firebase'
 import { useModal } from '@/hooks/index.hook'
-import React, { useState } from 'react'
+import { collection, query, where } from 'firebase/firestore'
+import { useState } from 'react'
+import { useCollectionData } from "react-firebase-hooks/firestore"
 import UserAvatar from '../common/UserAvatar'
 import PlayerChallengeModal from '../modals/PlayerChallengeModal'
 import ProfileStatsCard from './ProfileStatsCard'
-import { PlayerCardProps, PlayerProps, SelectedPlayerType } from './type'
-import { useCollectionData } from "react-firebase-hooks/firestore"
-import { collection, query, where } from 'firebase/firestore';
-import { firestoreDB } from '@/firebase';
-import { getUser } from './util'
 import { useCurrentPlayer } from './store'
+import { PlayerCardProps, PlayerProps } from './type'
+import { getUser } from './util'
 
 
 type _CompactPlayerCard = Omit<PlayerCardProps, 'matches' | 'wins' | 'loss' | 'handleChallenge'>
 type CompactPlayerCard = _CompactPlayerCard & { handleClick?: (id: string) => void }
 
 interface Props {
-    handleChallenge: (id: string) => void
+    handleChallenge: (player: PlayerProps) => void
 }
 
-const players: SelectedPlayerType[] = [
-    { avatar: { name: 'Kelvin', id: 'k-1' }, matches: 10, wins: 5, loss: 5, online: true, id: 'k-1' },
-    { avatar: { name: 'Seun', id: 'seun-271' }, matches: 10, wins: 5, loss: 5, online: false, id: 'seun-271' },
-    { avatar: { name: 'Cypher Moon', id: 'moon19' }, matches: 10, wins: 5, loss: 5, online: true, id: 'moon19' },
-]
 
 const OnlinePlayerOptions = ({ handleChallenge }: Props) => {
     const { isOpen, openModal, closeModal } = useModal(false)
@@ -33,7 +28,6 @@ const OnlinePlayerOptions = ({ handleChallenge }: Props) => {
     const [selectedPlayer, setSelectedPlayer] = useState<PlayerProps | null>(null)
 
     function handlePlayerSelected(id: string) {
-        // setSelectedPlayer(() => players.find(player => player.id === id))
         getUser({ id })
             .then(player => setSelectedPlayer(player as PlayerProps))
     }
@@ -66,7 +60,7 @@ const OnlinePlayerOptions = ({ handleChallenge }: Props) => {
                         win={selectedPlayer.win || 0}
                         loss={selectedPlayer.loss || 0}
                         online={true}
-                        handleChallenge={() => handleChallenge(selectedPlayer.id)} />
+                        handleChallenge={() => handleChallenge(selectedPlayer)} />
                 </PlayerChallengeModal>
             }
         </>
