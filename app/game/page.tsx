@@ -1,9 +1,12 @@
 "use client";
 import AiTicTacToe from "@/components/Game/AiTicTacToe";
 import LocalTicTacToe from "@/components/Game/LocalTicTacToe";
+import OnlinePlayerScore from "@/components/Game/OnlinePlayerScore";
+import OnlineTicTacToe from "@/components/Game/OnlineTicTacToe";
 import PlayerScore from "@/components/Game/PlayerScore";
 import ScoreBoard from "@/components/Game/ScoreBoard";
-import { useGameMode, useGameRepresentation } from "@/components/Home/store";
+import { useGameMode, useGameRepresentation, useOnlineGameId } from "@/components/Home/store";
+import { OnlineGameDataProps } from "@/components/Home/type";
 import Button from "@/components/common/Button";
 import Container from "@/components/common/Container";
 import MonitorOnlineStatus from "@/components/common/MonitorOnlineStatus";
@@ -11,20 +14,35 @@ import NavItem from "@/components/common/NavItem";
 import Navbar from "@/components/common/Navbar";
 import ProtectedRoute from "@/components/common/ProtectedRoute";
 import GameInfoDialog from "@/components/modals/GameInfoModal";
+import { firestoreDB } from "@/firebase";
 import { useModal } from "@/hooks/index.hook";
+import { DocumentData, DocumentReference, doc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDocumentData } from "react-firebase-hooks/firestore";
 import { FaTimes } from "react-icons/fa";
 import { MdQuestionMark } from "react-icons/md";
 
 
 export default function Game() {
   const router = useRouter()
-  const gameMode = useGameMode(state => state.gameMode)
-  const gameRepresentation = useGameRepresentation(state => state)
-
   const { isOpen, openModal, closeModal } = useModal(false)
-  const [currentPlayer, setCurrentPlayer] = useState(gameRepresentation.player1)
+
+  const gameMode = useGameMode(state => state.gameMode)
+  const localGameRep = useGameRepresentation(state => state)
+  const [currentPlayer, setCurrentPlayer] = useState(localGameRep.player1)
+
+  // online game state
+  const onlineGameId = useOnlineGameId(state => state.id)
+  const onlineGameRef = doc(firestoreDB, "games", onlineGameId || "26")
+  const [onlineGameData, loading, error] = useDocumentData<OnlineGameDataProps>(onlineGameRef as DocumentReference<OnlineGameDataProps, DocumentData>);
+  const isOnlineGame = gameMode === "online"
+
+  const gameRep = isOnlineGame ? onlineGameData : localGameRep
+
+  useEffect(() => {
+    console.log("game representation", gameRep)
+  })
 
 
   return (
@@ -66,46 +84,60 @@ export default function Game() {
               No game mode selected
             </h1>
           }
-          {gameRepresentation.gameConfig && gameRepresentation.player1 && gameRepresentation.player2 && currentPlayer &&
+          {gameRep && gameRep.player1 && gameRep.player2 && gameRep.config &&
             <>
-              <PlayerScore
-                player1={gameRepresentation.player1}
-                player2={gameRepresentation.player2}
-                currentPlayer={currentPlayer}
-                setCurrentPlayer={setCurrentPlayer}
-                name={currentPlayer.name}
-                id={currentPlayer.id}
-                countdown={gameRepresentation.gameConfig.timer} />
+              {
+                gameMode !== "online" &&
+                <PlayerScore
+                  player1={gameRep.player1}
+                  player2={gameRep.player2}
+                  currentPlayer={currentPlayer ?? undefined}
+                  setCurrentPlayer={setCurrentPlayer}
+                  countdown={gameRep.config.timer} />
+              }
+
+              {
+                gameMode === "online" &&
+                <OnlinePlayerScore game={gameRep as OnlineGameDataProps} />
+              }
 
               <div className="mt-10 flex flex-col lg:flex-row-reverse justify-between items-start space-y-10 lg:space-y-0">
-                {gameMode === "local" &&
+                {gameMode === "local" && currentPlayer &&
                   <LocalTicTacToe
-                    player1={gameRepresentation.player1}
-                    player2={gameRepresentation.player2}
+                    player1={gameRep.player1}
+                    player2={gameRep.player2}
                     currentPlayer={currentPlayer}
                     setCurrentPlayer={setCurrentPlayer}
-                    label={gameRepresentation.gameConfig.currentBoardType.value}
-                    countdown={gameRepresentation.gameConfig.timer} />
+                    label={gameRep.config.currentBoardType.value}
+                    countdown={gameRep.config.timer} />
                 }
 
                 {
-                  gameMode === "ai" &&
+                  gameMode === "ai" && currentPlayer &&
                   <AiTicTacToe
-                    player1={gameRepresentation.player1}
-                    player2={gameRepresentation.player2}
+                    player1={gameRep.player1}
+                    player2={gameRep.player2}
                     currentPlayer={currentPlayer}
                     setCurrentPlayer={setCurrentPlayer}
-                    label={gameRepresentation.gameConfig.currentBoardType.value}
-                    countdown={gameRepresentation.gameConfig.timer} />
+                    label={gameRep.config.currentBoardType.value}
+                    countdown={gameRep.config.timer} />
+
+                }
+
+                {
+                  gameMode === "online" &&
+                  <OnlineTicTacToe
+                    label={gameRep.config.currentBoardType.value}
+                  />
                 }
 
 
                 <ScoreBoard
-                  rounds={gameRepresentation.gameConfig.totalRounds}
-                  draws={gameRepresentation.draws || 0}
-                  player1={{ ...gameRepresentation.player1 }}
-                  player2={{ ...gameRepresentation.player2 }}
-                  bestOf={gameRepresentation.gameConfig.roundsToWin}
+                  rounds={gameRep.config.totalRounds}
+                  draws={gameRep.draws || 0}
+                  player1={{ ...gameRep.player1 }}
+                  player2={{ ...gameRep.player2 }}
+                  bestOf={gameRep.config.roundsToWin}
                 />
               </div>
             </>

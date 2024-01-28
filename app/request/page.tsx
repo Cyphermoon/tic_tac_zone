@@ -119,7 +119,16 @@ export default function GameRequest() {
     }, [onlineGameId])
 
 
+    const onlineHandleGameStart = () => {
+        router.push("/game")
+    }
+
+
     const handleGameStart = () => {
+        if (gameMode) {
+            onlineHandleGameStart()
+            return
+        }
         if (gameConfig.roundsToWin > gameConfig.totalRounds) {
             alert("Rounds to win cannot be greater than total rounds")
             return;
@@ -164,6 +173,7 @@ export default function GameRequest() {
                             <>
                                 <div className="flex flex-col lg:flex-row items-center lg:justify-between space-y-8 lg:space-y-0 mb-7">
                                     <MobilePlayersCard
+                                        mode={viewMode}
                                         players={[
                                             { ...player1, mark: player1.mark },
                                             { ...player2, mark: player2.mark }

@@ -53,6 +53,9 @@ export interface OnlineGameDataProps {
     boardOpened: boolean;
     isDraw: boolean;
     initiatingPlayerId: string
+    draws: number
+    pause: boolean
+    countdown: number
 }
 
 export type LocalPlayerProps = {
@@ -99,7 +102,7 @@ export type GameRepresentationProps = {
 }
 
 export type GameRepresentationStateProps = {
-    gameConfig: GameConfigType | null
+    config: GameConfigType | null
     player1: GamePlayerProps | null
     player2: GamePlayerProps | null
     timer: number

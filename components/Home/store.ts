@@ -37,7 +37,7 @@ export const useLocalPlayer = create<LocalPlayerStateProps>((set) => ({
 }))
 
 export const useGameRepresentation = create<GameRepresentationStateProps>(set =>({
-    gameConfig: null,
+    config: null,
     player1: null,
     player2: null,
     draws: 0,
@@ -45,7 +45,7 @@ export const useGameRepresentation = create<GameRepresentationStateProps>(set =>
     timer: 0,
     pause: false,
     distortedGhost: false,
-    updateGameConfig: (game: GameConfigType) => set({gameConfig: {...game}}),
+    updateGameConfig: (game: GameConfigType) => set({config: {...game}}),
     updatePlayer1: (player: GamePlayerProps) => set({player1: {...player}}),
     updatePlayer2: (player: GamePlayerProps) => set({player2: {...player}}),
     updateDraws: (draws: number) => set({draws}),

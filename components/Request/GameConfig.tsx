@@ -105,10 +105,6 @@ const GameConfig = ({ game, mode, dispatch, handleGameStart, online }: Props) =>
         }
     };
 
-    useEffect(() => {
-        console.log(game)
-    })
-
     return (
         <section className='bg-card rounded-2xl px-5 py-8 lg:w-[330px] text-center'>
             <div className='grid grid-cols-2 gap-x-12 gap-y-10 justify-item-start mb-8 text-left'>

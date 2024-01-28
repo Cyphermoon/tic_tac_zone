@@ -78,6 +78,7 @@ const GamePlayOptions = () => {
             boardOpened: true,
             isDraw: false,
             initiatingPlayerId: currentPlayer.id,
+            draws: 0
         }
 
         updateOrGetGame(gameId, gameData)

@@ -1,6 +1,7 @@
 import React from 'react'
 import UserAvatar from '../common/UserAvatar'
 import Button from '../common/Button'
+import { ViewModeType } from './type'
 
 interface Player {
     name: string
@@ -11,9 +12,10 @@ interface Player {
 interface Props {
     players: Player[]
     startGame: () => void
+    mode: ViewModeType
 }
 
-const MobilePlayersCard = ({ players, startGame }: Props) => {
+const MobilePlayersCard = ({ players, startGame, mode }: Props) => {
     return (
         <section className='bg-card rounded-2xl w-full p-4 lg:hidden'>
             <div className="flex items-center justify-between space-x-4">
@@ -23,9 +25,12 @@ const MobilePlayersCard = ({ players, startGame }: Props) => {
 
             </div>
 
-            <Button className='mx-auto !mt-6 !block' onClick={startGame} >
-                Start Game
-            </Button>
+            {
+                mode === "edit" &&
+                <Button className='mx-auto !mt-6 !block' onClick={startGame} >
+                    Start Game
+                </Button>
+            }
 
         </section>
     )

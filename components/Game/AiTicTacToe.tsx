@@ -26,7 +26,7 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
     const updatePauseGame = useGameRepresentation(state => state.updatePause)
     const updateMatchRound = useGameRepresentation(state => state.updateRound)
 
-    const roundsToWin = useGameRepresentation(state => state.gameConfig?.roundsToWin || 1)
+    const roundsToWin = useGameRepresentation(state => state.config?.roundsToWin || 1)
     const matchRound = useGameRepresentation(state => state.round)
 
     const { isOpen, openModal, closeModal } = useModal(false)

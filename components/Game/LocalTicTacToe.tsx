@@ -8,7 +8,7 @@ import Button from '../common/Button'
 import GameInfoDialog from '../modals/GameInfoModal'
 import TicTacToeBoard from './TicTacToeBoard'
 import { BoardType } from './type'
-import { checkWinner, isDraw, switchPlayer, handleCellClicked as _handleCellClicked } from './util'
+import { handleCellClicked as _handleCellClicked, switchPlayer } from './util'
 
 interface Props {
     label: string
@@ -29,7 +29,7 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
     const { isOpen, openModal, closeModal } = useModal(false)
     const { isOpen: drawModal, openModal: openDrawModal, closeModal: closeDrawModal } = useModal(false)
 
-    const roundsToWin = useGameRepresentation(state => state.gameConfig?.roundsToWin || 1)
+    const roundsToWin = useGameRepresentation(state => state.config?.roundsToWin || 1)
     const [winner, setWinner] = useState<GamePlayerProps>()
 
     const updatePlayer1 = useGameRepresentation(state => state.updatePlayer1)
