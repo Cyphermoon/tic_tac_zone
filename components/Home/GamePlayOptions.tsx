@@ -5,7 +5,7 @@ import AiOptions from './AiOptions';
 import LocalOption from './LocalOption';
 import OnlinePlayerOptions from './OnlinePlayerOptions';
 import { useAIDifficulty, useCurrentPlayer, useGameMode, useLocalPlayer, useOnlineGameId } from './store';
-import { LocalPlayersProps, OnlinePlayerProps, PlayerProps } from './type';
+import { LocalPlayersProps, OnlineGameDataProps, OnlinePlayerProps, PlayerProps } from './type';
 import { createChat, updateOrGetGame } from './util';
 
 
@@ -78,7 +78,10 @@ const GamePlayOptions = () => {
             boardOpened: true,
             isDraw: false,
             initiatingPlayerId: currentPlayer.id,
-            draws: 0
+            pause: false,
+            countdown: rest.timer,
+            draws: 0,
+            winner: null
         }
 
         updateOrGetGame(gameId, gameData)

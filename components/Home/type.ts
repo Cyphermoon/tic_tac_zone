@@ -56,6 +56,7 @@ export interface OnlineGameDataProps {
     draws: number
     pause: boolean
     countdown: number
+    winner: null | OnlinePlayerProps
 }
 
 export type LocalPlayerProps = {

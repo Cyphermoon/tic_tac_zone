@@ -30,6 +30,7 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
     const { isOpen: drawModal, openModal: openDrawModal, closeModal: closeDrawModal } = useModal(false)
 
     const roundsToWin = useGameRepresentation(state => state.config?.roundsToWin || 1)
+    const distortedMode = useGameRepresentation(state => state.config?.distortedMode || false)
     const [winner, setWinner] = useState<GamePlayerProps>()
 
     const updatePlayer1 = useGameRepresentation(state => state.updatePlayer1)
@@ -80,7 +81,7 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
 
     return (
         <>
-            <TicTacToeBoard label={label} handleCellClicked={handleCellClicked} board={board} currentMarker={currentPlayer.mark} />
+            <TicTacToeBoard label={label} handleCellClicked={handleCellClicked} board={board} currentMarker={currentPlayer.mark} distortedMode={distortedMode} />
             {
                 winner && <GameInfoDialog isOpen={isOpen || false} closeModal={handleCloseModal}>
                     <div className='flex flex-col items-center justify-center'>

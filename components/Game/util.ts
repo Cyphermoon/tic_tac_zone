@@ -1,4 +1,5 @@
-import { GamePlayerProps, GameRepresentationStateProps } from "../Home/type"
+import { Firestore, doc, updateDoc } from "firebase/firestore"
+import { GamePlayerProps, GameRepresentationStateProps, OnlinePlayerProps } from "../Home/type"
 import { BoardType } from "./type"
 import seedrandom from "seedrandom"
 
@@ -189,4 +190,101 @@ export const handleCellClicked = (
 
     // Switch to the other player
     switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
+}
+
+
+
+//* ONLINE GAME FUNCTIONS
+
+export async function setTimer(firestoreDB: Firestore, gameId: string, newTime: number) {
+    const gameRef = doc(firestoreDB, 'games', gameId);
+    await updateDoc(gameRef, {
+        'countdown': newTime
+    });
+}
+
+export async function updatePlayerScore(firestoreDB: Firestore, gameId: string, playerField: string, newScore: number) {
+    const gameRef = doc(firestoreDB, 'games', gameId);
+    await updateDoc(gameRef, {
+        [`${playerField}.score`]: newScore
+    });
+}
+
+export async function increaseOtherPlayerOnlineScore(
+    currentPlayer: OnlinePlayerProps,
+    player1: OnlinePlayerProps,
+    player2: OnlinePlayerProps,
+    firestoreDB: Firestore,
+    gameId: string
+) {
+    const gameRef = doc(firestoreDB, 'games', gameId);
+
+    if (currentPlayer.id === player1.id) {
+        let newScore = player2.score + 1;
+        await updateDoc(gameRef, {
+            'player2.score': newScore
+        });
+    } else {
+        let newScore = player1.score + 1;
+        await updateDoc(gameRef, {
+            'player1.score': newScore
+        });
+    }
+}
+
+export async function setCurrentPlayerOnline(firestoreDB: Firestore, gameId: string, currentPlayerId: OnlinePlayerProps) {
+    const gameRef = doc(firestoreDB, 'games', gameId);
+    await updateDoc(gameRef, {
+        'currentPlayer': currentPlayerId
+    });
+}
+
+export function switchOnlinePlayer(
+    currentPlayer: OnlinePlayerProps,
+    player1: OnlinePlayerProps,
+    player2: OnlinePlayerProps,
+    firestoreDB: Firestore,
+    gameId: string,
+    finalWinner: boolean = false
+) {
+    if (finalWinner) return
+
+    if (currentPlayer.id === player1.id) {
+        setCurrentPlayerOnline(firestoreDB, gameId, player2);
+    } else {
+        setCurrentPlayerOnline(firestoreDB, gameId, player1);
+    }
+}
+
+
+export async function updatePositionInFirestore(firestoreDB: Firestore, gameId: string, position: string, mark: string) {
+    const gameRef = doc(firestoreDB, 'games', gameId);
+    await updateDoc(gameRef, {
+        [`board.${position}`]: mark
+    });
+}
+
+
+// Function to reset the board in Firestore
+export async function resetBoardOnline(firestoreDB: Firestore, gameId: string, defaultBoard: BoardType) {
+    const gameRef = doc(firestoreDB, 'games', gameId);
+    await updateDoc(gameRef, {
+        'board': defaultBoard
+    });
+}
+
+export async function setOnlineWinner(firestoreDB: Firestore, gameId: string, winner: OnlinePlayerProps | null) {
+    const gameRef = doc(firestoreDB, 'games', gameId);
+    await updateDoc(gameRef, {
+        'winner': winner
+    });
+}
+
+// Function to reset the scores online
+export async function resetScoreOnline(firestoreDB: Firestore, gameId: string) {
+    const gameRef = doc(firestoreDB, 'games', gameId);
+    await updateDoc(gameRef, {
+        'player1.score': 0,
+        'player2.score': 0
+    });
 }

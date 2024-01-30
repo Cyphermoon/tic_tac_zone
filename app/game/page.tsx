@@ -35,14 +35,28 @@ export default function Game() {
   // online game state
   const onlineGameId = useOnlineGameId(state => state.id)
   const onlineGameRef = doc(firestoreDB, "games", onlineGameId || "26")
-  const [onlineGameData, loading, error] = useDocumentData<OnlineGameDataProps>(onlineGameRef as DocumentReference<OnlineGameDataProps, DocumentData>);
+  const [onlineGameData, loading, _] = useDocumentData<OnlineGameDataProps>(onlineGameRef as DocumentReference<OnlineGameDataProps, DocumentData>);
   const isOnlineGame = gameMode === "online"
 
   const gameRep = isOnlineGame ? onlineGameData : localGameRep
 
+  const [distortedMode, setDistortedMode] = useState<boolean | null>(null);
+
+
+  const toggleDistorted = () => {
+    setDistortedMode(true);
+
+    // Automatically turn off distortedMode after 2 seconds
+    setTimeout(() => {
+      setDistortedMode(false);
+    }, 2000);
+  };
+
   useEffect(() => {
-    console.log("game representation", gameRep)
-  })
+    if (!loading) return
+
+    setDistortedMode(onlineGameData?.config.distortedMode ?? null);
+  }, [loading, onlineGameData?.config.distortedMode])
 
 
   return (
@@ -96,10 +110,13 @@ export default function Game() {
                   countdown={gameRep.config.timer} />
               }
 
-              {
+              {/* {
                 gameMode === "online" &&
-                <OnlinePlayerScore game={gameRep as OnlineGameDataProps} />
-              }
+                <OnlinePlayerScore
+                  distortedMode={distortedMode ?? false}
+                  toggleDistortedMode={toggleDistorted}
+                  game={gameRep as OnlineGameDataProps} />
+              } */}
 
               <div className="mt-10 flex flex-col lg:flex-row-reverse justify-between items-start space-y-10 lg:space-y-0">
                 {gameMode === "local" && currentPlayer &&
@@ -127,7 +144,8 @@ export default function Game() {
                 {
                   gameMode === "online" &&
                   <OnlineTicTacToe
-                    label={gameRep.config.currentBoardType.value}
+                    distortedMode={distortedMode ?? false}
+                    gameRep={gameRep as OnlineGameDataProps}
                   />
                 }
 

@@ -28,7 +28,7 @@ const Button = ({
             "text-accent-900, bg-card": variant === "muted",
             "w-full": fullWidth,
             "hover:opacity-80 hover:scale-95": !disableZoomOutEffect,
-            "opacity-70 pointer-events-none select-none": disabled,
+            "opacity-60 blur-md pointer-events-none select-none": disabled,
         }
     );
 

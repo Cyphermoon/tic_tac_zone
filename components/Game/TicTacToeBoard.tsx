@@ -8,6 +8,7 @@ interface Props {
     board: BoardType
     handleCellClicked: (position: string) => void
     currentMarker: string
+    distortedMode?: boolean
 }
 
 interface CellProps {
@@ -19,8 +20,7 @@ interface CellProps {
 
 
 
-const TicTacToeBoard = ({ label, board, handleCellClicked, currentMarker }: Props) => {
-    const distortedMode = useGameRepresentation(state => state.gameConfig?.distortedMode || false)
+const TicTacToeBoard = ({ label, board, handleCellClicked, currentMarker, distortedMode }: Props) => {
     const distortedGhost = useGameRepresentation(state => state.distortedGhost)
     const gameMode = useGameMode(state => state.gameMode)
     const player1 = useGameRepresentation(state => state.player1)
