@@ -46,8 +46,9 @@ export default function Home() {
                                 imageUrl={null}
                             />
                         }
-
-                        <GameHistory />
+                        {currentPlayer.id &&
+                            <GameHistory currentPlayerId={currentPlayer.id} />
+                        }
                     </div>
                     <GamePlayOptions />
                 </Container>

@@ -152,11 +152,9 @@ const GameConfig = ({ game, mode, dispatch, handleGameStart, online }: Props) =>
 
             </div>
 
-            {currentGameMode === "edit" && (
-                <Button fullWidth onClick={handleGameStart}>
-                    Start Game
-                </Button>
-            )}
+            <Button fullWidth onClick={handleGameStart}>
+                Start Game
+            </Button>
 
         </section>
     )

@@ -128,3 +128,10 @@ export type OnlineGameIdProps = {
 export type OnlineGameStateRepresentationProps = OnlineGameIdProps & {
     updateOnlineGameId: (id: string) => void
 }
+
+export type GameHistoryProps = {
+    opponent: string;
+    gameType: string;
+    firstToWin: number
+    result: string;
+};

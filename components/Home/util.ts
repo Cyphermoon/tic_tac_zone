@@ -10,6 +10,8 @@ interface GameData {
 
 
 // Functions
+
+
 export  async function getUser(user: PlayerProps | { id: string }) {
     // Reference to the user document
     const userDocRef = doc(firestoreDB, "users", user.id)
@@ -27,7 +29,6 @@ export  async function getUser(user: PlayerProps | { id: string }) {
         return user
     }
 }
-
 
 export async function updateOrGetGame(gameId: string, data: GameData = {}) {
     const gameDocRef = doc(firestoreDB, 'games', gameId);

@@ -1,51 +1,58 @@
-import React from 'react'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './TableUI'
+import { firestoreDB } from '@/firebase';
+import { CollectionReference, DocumentData, collection } from 'firebase/firestore';
+import { useEffect } from 'react';
+import { useCollectionDataOnce } from 'react-firebase-hooks/firestore';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './TableUI';
+import { GameHistoryProps } from './type';
 
-const GameHistory = () => {
+// TODO: Add duration for game history
+
+
+interface Props {
+    currentPlayerId: string
+}
+
+
+const GameHistory = ({ currentPlayerId }: Props) => {
+    const gameHistoryRef = collection(firestoreDB, 'users', currentPlayerId, 'history');
+    const [gameHistory, loading, error] = useCollectionDataOnce<GameHistoryProps>(gameHistoryRef as CollectionReference<GameHistoryProps, DocumentData>);
+
+
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>Error: {error.message}</p>;
+
+
+
     return (
         <section className='bg-card rounded-2xl p-5 grow h-[320px] hide-scrollbar overflow-scroll'>
             <h2 className='font-semibold text-2xl text-secondary mb-10 grow'> Game History </h2>
-            {true && <p className='text-left text-neutral-500'>No games played yet</p>}
-            {false &&
+            {gameHistory && gameHistory.length > 0 ? (
                 <Table className="w-[550px] lg:w-full">
                     <TableHeader>
                         <TableRow className='mb-5'>
-                            <TableHead className="font-medium">Name</TableHead>
+                            <TableHead className="font-medium">Opponent</TableHead>
                             <TableHead className="font-medium">Game Type</TableHead>
                             <TableHead className="font-medium">Duration</TableHead>
                             <TableHead className="font-medium">Result</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow>
-                            <TableCell>Edgar Stan</TableCell>
-                            <TableCell>3x3 Board</TableCell>
-                            <TableCell>2:45</TableCell>
-                            <TableCell>Win</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>Maeve Willy</TableCell>
-                            <TableCell>Pyramid Board</TableCell>
-                            <TableCell>9:11</TableCell>
-                            <TableCell>Loss</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>Maeve Willy</TableCell>
-                            <TableCell>4x4 Board</TableCell>
-                            <TableCell>0:69</TableCell>
-                            <TableCell>Loss</TableCell>
-                        </TableRow>
+                        {gameHistory.map((game, index) => (
+                            <TableRow key={index}>
+                                <TableCell>{game.opponent}</TableCell>
+                                <TableCell>{game.gameType}</TableCell>
+                                <TableCell>{game.firstToWin}</TableCell>
+                                <TableCell>{game.result}</TableCell>
+                            </TableRow>
+                        ))}
                     </TableBody>
                 </Table>
-            }
+            ) : (
+                <p className='text-left text-neutral-500'>No games played yet</p>
+            )}
         </section>
-    )
+    );
 }
 
+
 export default GameHistory
-
-
-
-
-
-

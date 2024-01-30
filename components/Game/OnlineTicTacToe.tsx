@@ -2,12 +2,14 @@ import { firestoreDB } from '@/firebase'
 import { _board } from '@/game_settings'
 import Image from 'next/image'
 import { useCurrentPlayer, useOnlineGameId } from '../Home/store'
-import { OnlineGameDataProps } from '../Home/type'
+import { GameHistoryProps, OnlineGameDataProps } from '../Home/type'
 import Button from '../common/Button'
 import GameInfoDialog from '../modals/GameInfoModal'
 import TicTacToeBoard from './TicTacToeBoard'
 import { BoardType } from './type'
 import { checkWinner, isDraw, resetBoardOnline, resetScoreOnline, setOnlineWinner, switchOnlinePlayer, updatePlayerScore, updatePositionInFirestore } from './util'
+import { Firestore, addDoc, collection, doc, increment, updateDoc } from 'firebase/firestore'
+import { useEffect } from 'react'
 
 interface Props {
     distortedMode: boolean
@@ -24,7 +26,6 @@ const OnlineTicTacToe = ({ gameRep, distortedMode }: Props) => {
     const onlineGameId = useOnlineGameId(state => state.id)
     const currentPlayerId = useCurrentPlayer(state => state.id)
     const board = gameRep.board
-
 
     const handleCloseModal = () => {
         if (!onlineGameId) return
@@ -59,12 +60,33 @@ const OnlineTicTacToe = ({ gameRep, distortedMode }: Props) => {
                     // Update player 1's score in Firestore
                     await updatePlayerScore(firestoreDB, onlineGameId, "player1", score)
                 }
+                // If player 1's score is equal to or greater than the number of rounds to win
                 if (score >= gameRep.config.roundsToWin) {
+                    // Set player 1 as the winner in Firestore
                     await setOnlineWinner(firestoreDB, onlineGameId, gameRep.player1);
+
+                    // Update the game history for both players
+                    updateHistory(firestoreDB, gameRep.player1.id, {
+                        opponent: gameRep.player2.name,
+                        gameType: gameRep.config.currentBoardType.value,
+                        firstToWin: gameRep.config.roundsToWin,
+                        result: "Win",
+                    });
+
+                    updateHistory(firestoreDB, gameRep.player2.id, {
+                        opponent: gameRep.player1.name,
+                        gameType: gameRep.config.currentBoardType.value,
+                        firstToWin: gameRep.config.roundsToWin,
+                        result: "Loss",
+                    });
+
+                    // Update both player stats
+                    updatePlayerStats(firestoreDB, gameRep.player1.id, true)
+
+                    updatePlayerStats(firestoreDB, gameRep.player2.id, false);
                 }
             } else {
-                // Set player 2 as the winner in Firestore
-                await setOnlineWinner(firestoreDB, onlineGameId, gameRep.player2);
+                // If the current player is player 2
 
                 // Increase player 2's score
                 let score = gameRep.player2.score + 1
@@ -74,8 +96,30 @@ const OnlineTicTacToe = ({ gameRep, distortedMode }: Props) => {
                     // Update player 2's score in Firestore
                     await updatePlayerScore(firestoreDB, onlineGameId, "player2", score)
                 }
+                // If player 2's score is equal to or greater than the number of rounds to win
                 if (score >= gameRep.config.roundsToWin) {
+                    // Set player 2 as the winner in Firestore
                     await setOnlineWinner(firestoreDB, onlineGameId, gameRep.player2);
+
+                    // Update the game history for both players
+                    updateHistory(firestoreDB, gameRep.player2.id, {
+                        opponent: gameRep.player1.name,
+                        gameType: gameRep.config.currentBoardType.value,
+                        firstToWin: gameRep.config.roundsToWin,
+                        result: "Win",
+                    });
+
+                    updateHistory(firestoreDB, gameRep.player1.id, {
+                        opponent: gameRep.player2.name,
+                        gameType: gameRep.config.currentBoardType.value,
+                        firstToWin: gameRep.config.roundsToWin,
+                        result: "Loss",
+                    });
+
+                    // Update both player stats
+                    updatePlayerStats(firestoreDB, gameRep.player2.id, true);
+
+                    updatePlayerStats(firestoreDB, gameRep.player1.id, false);
                 }
             }
 
@@ -86,6 +130,7 @@ const OnlineTicTacToe = ({ gameRep, distortedMode }: Props) => {
         // If the game is a draw
         if (isDraw(newBoard)) await resetBoardOnline(firestoreDB, onlineGameId, _board)
 
+        // Switch the current player
         switchOnlinePlayer(gameRep.currentPlayer, gameRep.player1, gameRep.player2, firestoreDB, onlineGameId)
     }
 
@@ -116,3 +161,24 @@ const OnlineTicTacToe = ({ gameRep, distortedMode }: Props) => {
 }
 
 export default OnlineTicTacToe
+
+
+export async function updateHistory(firestoreDB: Firestore, userId: string, game: GameHistoryProps) {
+    const gameHistoryRef = collection(firestoreDB, 'users', userId, 'history');
+    await addDoc(gameHistoryRef, game);
+}
+async function updatePlayerStats(firestoreDB: Firestore, userId: string, won: boolean) {
+    const userRef = doc(firestoreDB, 'users', userId);
+
+    if (won) {
+        await updateDoc(userRef, {
+            'matches': increment(1),
+            'win': increment(1),
+        });
+    } else {
+        await updateDoc(userRef, {
+            'matches': increment(1),
+            'loss': increment(1),
+        });
+    }
+}
