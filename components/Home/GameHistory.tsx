@@ -31,8 +31,8 @@ const GameHistory = ({ currentPlayerId }: Props) => {
                     <TableHeader>
                         <TableRow className='mb-5'>
                             <TableHead className="font-medium">Opponent</TableHead>
-                            <TableHead className="font-medium">Game Type</TableHead>
-                            <TableHead className="font-medium">Duration</TableHead>
+                            <TableHead className="font-medium">Board Type</TableHead>
+                            <TableHead className="font-medium">Total Rounds</TableHead>
                             <TableHead className="font-medium">Result</TableHead>
                         </TableRow>
                     </TableHeader>

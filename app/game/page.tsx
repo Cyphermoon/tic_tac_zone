@@ -40,22 +40,22 @@ export default function Game() {
 
   const gameRep = isOnlineGame ? onlineGameData : localGameRep
 
-  const [distortedMode, setDistortedMode] = useState<boolean | null>(null);
+  const [distortedGhost, setDistortedGhost] = useState<boolean | null>(null);
 
 
   const toggleDistorted = () => {
-    setDistortedMode(true);
+    setDistortedGhost(true);
 
     // Automatically turn off distortedMode after 2 seconds
     setTimeout(() => {
-      setDistortedMode(false);
+      setDistortedGhost(false);
     }, 2000);
   };
 
   useEffect(() => {
     if (!loading) return
 
-    setDistortedMode(onlineGameData?.config.distortedMode ?? null);
+    setDistortedGhost(onlineGameData?.config.distortedMode ?? null);
   }, [loading, onlineGameData?.config.distortedMode])
 
 
@@ -110,15 +110,14 @@ export default function Game() {
                   countdown={gameRep.config.timer} />
               }
 
-              {/* {
+              {
                 gameMode === "online" &&
                 <OnlinePlayerScore
-                  distortedMode={distortedMode ?? false}
                   toggleDistortedMode={toggleDistorted}
                   game={gameRep as OnlineGameDataProps} />
-              } */}
+              }
 
-              <div className="mt-10 flex flex-col lg:flex-row-reverse justify-between items-start space-y-10 lg:space-y-0">
+              <div className="mt-10 flex flex-col items-center lg:flex-row-reverse justify-between lg:items-start space-y-10 lg:space-y-0">
                 {gameMode === "local" && currentPlayer &&
                   <LocalTicTacToe
                     player1={gameRep.player1}
@@ -144,14 +143,14 @@ export default function Game() {
                 {
                   gameMode === "online" &&
                   <OnlineTicTacToe
-                    distortedMode={distortedMode ?? false}
+                    distortedMode={distortedGhost ?? false}
                     gameRep={gameRep as OnlineGameDataProps}
                   />
                 }
 
 
                 <ScoreBoard
-                  rounds={gameRep.config.totalRounds}
+                  rounds={gameRep.totalRounds || 0}
                   draws={gameRep.draws || 0}
                   player1={{ ...gameRep.player1 }}
                   player2={{ ...gameRep.player2 }}

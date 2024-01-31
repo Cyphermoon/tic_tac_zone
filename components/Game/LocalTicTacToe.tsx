@@ -26,24 +26,53 @@ export const resetBoard = (setBoard: (board: BoardType) => void) => {
 
 const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlayer, countdown }: Props) => {
     const [board, setBoard] = useState(_board);
+    const [winner, setWinner] = useState<GamePlayerProps>()
     const { isOpen, openModal, closeModal } = useModal(false)
     const { isOpen: drawModal, openModal: openDrawModal, closeModal: closeDrawModal } = useModal(false)
 
     const roundsToWin = useGameRepresentation(state => state.config?.roundsToWin || 1)
+    const distortedGhost = useGameRepresentation(state => state.distortedGhost)
     const distortedMode = useGameRepresentation(state => state.config?.distortedMode || false)
-    const [winner, setWinner] = useState<GamePlayerProps>()
+    const player1Id = useGameRepresentation(state => state.player1?.id)
+    const player2Id = useGameRepresentation(state => state.player2?.id)
+    const draws = useGameRepresentation(state => state.draws || 0)
+    const totalRounds = useGameRepresentation(state => state.totalRounds)
 
+    // Functions to handle game state
     const updatePlayer1 = useGameRepresentation(state => state.updatePlayer1)
     const updatePlayer2 = useGameRepresentation(state => state.updatePlayer2)
     const updateTimeLeft = useGameRepresentation(state => state.updateTimer)
     const updatePauseGame = useGameRepresentation(state => state.updatePause)
+    const updateDraws = useGameRepresentation(state => state.updateDraws)
+    const updateTotalRounds = useGameRepresentation(state => state.updateTotalRounds)
+
 
     // Function to handle cell click event
-    const handleCellClicked = useCallback((position: string) => {
-        return _handleCellClicked(position, board, currentPlayer, player1, player2, roundsToWin, countdown, updateTimeLeft, setBoard, resetBoard, setWinner, updatePlayer1, updatePlayer2, setCurrentPlayer)
-
-    }, [board, currentPlayer, player1, player2, roundsToWin, countdown, updateTimeLeft, updatePlayer1, updatePlayer2, setCurrentPlayer]);
-
+    const handleCellClicked = useCallback(
+        (position: string) => {
+            return _handleCellClicked(
+                position,
+                board,
+                currentPlayer,
+                player1,
+                player2,
+                roundsToWin,
+                countdown,
+                draws,
+                totalRounds,
+                updateTimeLeft,
+                setBoard,
+                resetBoard,
+                setWinner,
+                updatePlayer1,
+                updatePlayer2,
+                updateDraws,
+                updateTotalRounds,
+                setCurrentPlayer
+            );
+        },
+        [board, currentPlayer, player1, player2, roundsToWin, countdown, draws, totalRounds, updateTimeLeft, updatePlayer1, updatePlayer2, updateDraws, updateTotalRounds, setCurrentPlayer]
+    );
 
     function handleDrawDialogClose() {
         closeDrawModal()
@@ -57,6 +86,8 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
         closeModal()
         updatePauseGame(false)
         resetBoard(setBoard)
+        updateTotalRounds(0)
+        updateDraws(0)
         updatePlayer1({ ...player1, score: 0 })
         updatePlayer2({ ...player2, score: 0 })
 
@@ -81,7 +112,15 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
 
     return (
         <>
-            <TicTacToeBoard label={label} handleCellClicked={handleCellClicked} board={board} currentMarker={currentPlayer.mark} distortedMode={distortedMode} />
+            <TicTacToeBoard
+                label={label}
+                handleCellClicked={handleCellClicked}
+                board={board}
+                currentMarker={currentPlayer.mark}
+                player1Id={player1Id}
+                player2Id={player2Id}
+                distortedMode={distortedMode}
+                distortedGhost={distortedGhost} />
             {
                 winner && <GameInfoDialog isOpen={isOpen || false} closeModal={handleCloseModal}>
                     <div className='flex flex-col items-center justify-center'>

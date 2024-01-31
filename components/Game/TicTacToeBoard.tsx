@@ -8,7 +8,10 @@ interface Props {
     board: BoardType
     handleCellClicked: (position: string) => void
     currentMarker: string
-    distortedMode?: boolean
+    distortedMode: boolean
+    distortedGhost: boolean
+    player1Id?: string
+    player2Id?: string
 }
 
 interface CellProps {
@@ -20,16 +23,13 @@ interface CellProps {
 
 
 
-const TicTacToeBoard = ({ label, board, handleCellClicked, currentMarker, distortedMode }: Props) => {
-    const distortedGhost = useGameRepresentation(state => state.distortedGhost)
+const TicTacToeBoard = ({ label, board, handleCellClicked, currentMarker, distortedGhost, player1Id, player2Id, distortedMode = false }: Props) => {
     const gameMode = useGameMode(state => state.gameMode)
-    const player1 = useGameRepresentation(state => state.player1)
-    const player2 = useGameRepresentation(state => state.player2)
 
     let positions = Object.keys(board)
 
     if (distortedMode && gameMode !== "ai") {
-        positions = shuffleArray(positions, `${player1?.id || "hello"}_${player2?.id || "kelvin"}`)
+        positions = shuffleArray(positions, `${player1Id || "hello"}_${player2Id || "kelvin"}`)
     }
 
     return (

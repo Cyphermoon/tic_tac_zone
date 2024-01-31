@@ -125,13 +125,9 @@ export default function GameRequest() {
 
 
     const handleGameStart = () => {
-        if (gameMode) {
+        if (gameMode === "online") {
             onlineHandleGameStart()
             return
-        }
-        if (gameConfig.roundsToWin > gameConfig.totalRounds) {
-            alert("Rounds to win cannot be greater than total rounds")
-            return;
         }
 
         updateGameConfig(gameConfig)
@@ -180,8 +176,6 @@ export default function GameRequest() {
                                         ]}
                                         startGame={handleGameStart}
                                     />
-
-
 
                                     {gameMode &&
                                         <PlayerCard

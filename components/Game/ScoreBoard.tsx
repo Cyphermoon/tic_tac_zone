@@ -1,7 +1,6 @@
 import { isPlural } from '@/hooks/index.hook'
 import React from 'react'
 import UserAvatar from '../common/UserAvatar'
-import { gidigu } from '@/app/font'
 
 type playerProps = {
     id: string
@@ -34,7 +33,7 @@ const ScoreBoard = ({ rounds, draws, player1, player2, bestOf }: Props) => {
             {
                 bestOf &&
                 <span className='text-sm text-accent text-center block'>
-                    Best {bestOf} of {rounds}
+                    First to {bestOf} Wins
                 </span>
             }
 

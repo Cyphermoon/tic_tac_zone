@@ -57,6 +57,7 @@ export interface OnlineGameDataProps {
     pause: boolean
     countdown: number
     winner: null | OnlinePlayerProps
+    totalRounds: number
 }
 
 export type LocalPlayerProps = {
@@ -111,6 +112,7 @@ export type GameRepresentationStateProps = {
     pause: boolean
     draws: number | null
     distortedGhost: boolean
+    totalRounds: number
     updateGameConfig: (game: GameConfigType) => void
     updatePlayer1: (player: GamePlayerProps) => void
     updatePlayer2: (player: GamePlayerProps) => void
@@ -119,6 +121,7 @@ export type GameRepresentationStateProps = {
     updatePause: (pause: boolean) => void
     updateRound: (round: number) => void
     updateDistortedGhost: (distortedGhost: boolean) => void
+    updateTotalRounds: (totalRounds: number) => void
 }
 
 export type OnlineGameIdProps = {

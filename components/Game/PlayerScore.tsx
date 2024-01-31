@@ -23,19 +23,21 @@ const PlayerScore = ({ imageURL, countdown, player1, player2, currentPlayer, set
     const percentage = countdown && ((timeLeft || 0) / countdown) * 100
     const gameMode = useGameMode(state => state.gameMode)
     const distortedMode = useGameRepresentation(state => state.config?.distortedMode || false)
+    const totalRounds = useGameRepresentation(state => state.totalRounds)
 
-
+    // state setters
     const updatePlayer1 = useGameRepresentation(state => state.updatePlayer1)
     const updatePlayer2 = useGameRepresentation(state => state.updatePlayer2)
     const updateTimeLeft = useGameRepresentation(state => state.updateTimer)
     const updateMatchRound = useGameRepresentation(state => state.updateRound)
-    const updateDistortedMode = useGameRepresentation(state => state.updateDistortedGhost)
+    const updateDistortedGhost = useGameRepresentation(state => state.updateDistortedGhost)
+    const updateTotalRounds = useGameRepresentation(state => state.updateTotalRounds)
 
     function toggleDistorted() {
-        updateDistortedMode(true)
+        updateDistortedGhost(true)
 
         setTimeout(() => {
-            updateDistortedMode(false)
+            updateDistortedGhost(false)
         }, 1000)
     }
 
@@ -53,13 +55,9 @@ const PlayerScore = ({ imageURL, countdown, player1, player2, currentPlayer, set
 
         if (timeLeft === 0) {
             clearInterval(interval)
-            console.log("time left is ", timeLeft)
 
-            // setCurrentPlayer({
-            //     ...currentPlayer,
-            //     score: currentPlayer.score + 1
-            // })
             updateTimeLeft(countdown || 10)
+            updateTotalRounds(totalRounds + 1)
             currentPlayer && increaseOtherPlayerScore(currentPlayer, player1, player2, updatePlayer1, updatePlayer2)
             currentPlayer && switchPlayer(currentPlayer, player1, player2, setCurrentPlayer)
 
@@ -67,7 +65,7 @@ const PlayerScore = ({ imageURL, countdown, player1, player2, currentPlayer, set
         return () => {
             clearInterval(interval)
         }
-    }, [timeLeft, currentPlayer, player1, player2, countdown, pauseGame, updateTimeLeft, updateMatchRound, matchRound, updatePlayer1, updatePlayer2, roundsToWin, setCurrentPlayer])
+    }, [timeLeft, currentPlayer, player1, player2, countdown, pauseGame, updateTimeLeft, updateMatchRound, matchRound, updatePlayer1, updatePlayer2, roundsToWin, setCurrentPlayer, updateTotalRounds, totalRounds])
 
     return (
         <section className={`bg-card p-5 rounded-2xl  max-w-xl ${countdown ? "w-full" : "w-fit"} lg:mx-auto flex items-center justify-between`}>

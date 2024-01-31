@@ -1,7 +1,8 @@
-import { Firestore, doc, updateDoc } from "firebase/firestore"
-import { GamePlayerProps, GameRepresentationStateProps, OnlinePlayerProps } from "../Home/type"
+import { Firestore, addDoc, collection, doc, increment, updateDoc } from "firebase/firestore"
+import { GameHistoryProps, GamePlayerProps, GameRepresentationStateProps, OnlinePlayerProps } from "../Home/type"
 import { BoardType } from "./type"
 import seedrandom from "seedrandom"
+import { firestoreDB } from "@/firebase"
 
 // Function to switch the current player
 export function switchPlayer(
@@ -11,7 +12,6 @@ export function switchPlayer(
     setCurrentPlayer: (player: GamePlayerProps) => void,
     finalWinner: boolean = false
 ) {
-    console.log("Final Variable: ", finalWinner)
     if (finalWinner) return
 
     if (currentPlayer.id === player1.id) {
@@ -150,24 +150,29 @@ export const handleCellClicked = (
     player2: GamePlayerProps,
     roundsToWin: number,
     countdown: number,
+    draws: number,
+    totalRounds: number,
     updateTimeLeft: GameRepresentationStateProps["updateTimer"],
     setBoard: (board: BoardType) => void,
     resetBoard: (setBoard: (board: BoardType) => void) => void,
     setWinner: (player: GamePlayerProps | undefined) => void,
     updatePlayer1: Function,
     updatePlayer2: GameRepresentationStateProps["updatePlayer2"],
+    updateDraws: GameRepresentationStateProps["updateDraws"],
+    updateTotalRounds: GameRepresentationStateProps["updateTotalRounds"],
     setCurrentPlayer: (player: GamePlayerProps) => void
 ) => {
     if (board[position] !== '') return
 
     let newBoard = { ...board, [position]: currentPlayer.mark }
-
     // Update board
     updateTimeLeft(countdown)
     setBoard(newBoard)
 
     // Check for winner and update player score
     if (checkWinner(currentPlayer.mark, newBoard)) {
+        updateTotalRounds(totalRounds + 1)
+
         if (currentPlayer.id === player1.id) {
             setWinner(player1)
             let score = player1.score + 1
@@ -185,7 +190,9 @@ export const handleCellClicked = (
 
     // Check for draw
     if (isDraw(newBoard)) {
+         updateTotalRounds(totalRounds + 1)
         resetBoard(setBoard)
+        updateDraws(draws + 1)
     }
 
     // Switch to the other player
@@ -288,3 +295,55 @@ export async function resetScoreOnline(firestoreDB: Firestore, gameId: string) {
         'player2.score': 0
     });
 }
+
+
+export async function updateHistory(firestoreDB: Firestore, userId: string, game: GameHistoryProps) {
+    const gameHistoryRef = collection(firestoreDB, 'users', userId, 'history');
+    await addDoc(gameHistoryRef, game);
+}
+
+export async function updatePlayerStats(firestoreDB: Firestore, userId: string, won: boolean) {
+    const userRef = doc(firestoreDB, 'users', userId);
+
+    if (won) {
+        await updateDoc(userRef, {
+            'matches': increment(1),
+            'win': increment(1),
+        })
+    } else {
+        await updateDoc(userRef, {
+            'matches': increment(1),
+            'loss': increment(1),
+        })
+    }
+}
+
+export async function pauseGame(firestoreDB: Firestore, gameId: string, pause: boolean) {
+    const gameRef = doc(firestoreDB, 'games', gameId);
+
+    await updateDoc(gameRef, {
+        'pause': pause
+    });
+}
+
+
+export const updateOnlineGame = async (id: string | null, field: string, value: any) => {
+    if (id) {
+        const gameRef = doc(firestoreDB, 'games', id);
+        await updateDoc(gameRef, { [`config.${field}`]: value });
+    }
+};
+
+export const updateTotalRoundsOnline = async (id: string | null, totalRounds: number) => {
+    if (id) {
+        const gameRef = doc(firestoreDB, 'games', id);
+        await updateDoc(gameRef, { 'totalRounds': totalRounds });
+    }
+};
+
+export const updateOnlineDraws = async (id: string | null, draws: number) => {
+    if (id) {
+        const gameRef = doc(firestoreDB, 'games', id);
+        await updateDoc(gameRef, { 'draws': draws });
+    }
+};

@@ -81,6 +81,7 @@ const GamePlayOptions = () => {
             pause: false,
             countdown: rest.timer,
             draws: 0,
+            totalRounds: 0,
             winner: null
         }
 

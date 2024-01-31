@@ -1,14 +1,14 @@
 import { _board } from '@/game_settings'
+import { useModal } from '@/hooks/index.hook'
+import Image from 'next/image'
 import { useCallback, useEffect, useState } from 'react'
 import { useGameRepresentation } from '../Home/store'
 import { GamePlayerProps } from '../Home/type'
+import Button from '../common/Button'
+import GameInfoDialog from '../modals/GameInfoModal'
 import { resetBoard } from './LocalTicTacToe'
 import TicTacToeBoard from './TicTacToeBoard'
-import { checkWinner, getAvailablePositions, handleCellClicked as _handleCellClicked, isDraw, minimax, switchPlayer } from './util'
-import GameInfoDialog from '../modals/GameInfoModal'
-import Image from 'next/image'
-import Button from '../common/Button'
-import { useModal } from '@/hooks/index.hook'
+import { handleCellClicked as _handleCellClicked, checkWinner, getAvailablePositions, minimax, switchPlayer } from './util'
 
 interface Props {
     label: string
@@ -25,9 +25,13 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
     const updateTimeLeft = useGameRepresentation(state => state.updateTimer)
     const updatePauseGame = useGameRepresentation(state => state.updatePause)
     const updateMatchRound = useGameRepresentation(state => state.updateRound)
+    const updateDraws = useGameRepresentation(state => state.updateDraws)
+    const updateTotalRounds = useGameRepresentation(state => state.updateTotalRounds)
+
 
     const roundsToWin = useGameRepresentation(state => state.config?.roundsToWin || 1)
-    const matchRound = useGameRepresentation(state => state.round)
+    const totalRounds = useGameRepresentation(state => state.totalRounds)
+    const draws = useGameRepresentation(state => state.draws || 0)
 
     const { isOpen, openModal, closeModal } = useModal(false)
 
@@ -40,9 +44,31 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
     const aiDifficulty = player2.difficulty
 
     // Handle cell clicked event
-    const handleCellClicked = useCallback((position: string) => {
-        return _handleCellClicked(position, board, currentPlayer, player1, player2, roundsToWin, countdown, updateTimeLeft, setBoard, resetBoard, setWinner, updatePlayer1, updatePlayer2, setCurrentPlayer)
-    }, [board, currentPlayer, player1, player2, roundsToWin, countdown, updateTimeLeft, updatePlayer1, updatePlayer2, setCurrentPlayer]);
+    const handleCellClicked = useCallback(
+        (position: string) => {
+            return _handleCellClicked(
+                position,
+                board,
+                currentPlayer,
+                player1,
+                player2,
+                roundsToWin,
+                countdown,
+                draws,
+                totalRounds,
+                updateTimeLeft,
+                setBoard,
+                resetBoard,
+                setWinner,
+                updatePlayer1,
+                updatePlayer2,
+                updateDraws,
+                updateTotalRounds,
+                setCurrentPlayer
+            );
+        },
+        [board, currentPlayer, player1, player2, roundsToWin, countdown, draws, totalRounds, updateTimeLeft, updatePlayer1, updatePlayer2, updateDraws, updateTotalRounds, setCurrentPlayer]
+    );
 
     // Handle easy AI move
     const handleEasyAiMove = useCallback(() => {
@@ -108,6 +134,8 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
         setGameWon(false)
         updatePauseGame(false)
         updateMatchRound(0)
+        updateTotalRounds(0)
+        updateDraws(0)
         resetBoard(setBoard)
         updatePlayer1({ ...player1, score: 0 })
         updatePlayer2({ ...player2, score: 0 })
@@ -142,13 +170,17 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
         }
     }, [aiDifficulty, gameDraw, gameWon, handleCellClicked, handleEasyAiMove, handleHardAiMove, handleMediumAiMove, isAITurn])
 
-    useEffect(() => {
-        console.log("matchRound ", matchRound)
-    }, [matchRound])
 
     return (
         <>
-            <TicTacToeBoard label={label} handleCellClicked={handleCellClicked} board={board} currentMarker={currentPlayer.mark} />
+            <TicTacToeBoard
+                label={label}
+                handleCellClicked={handleCellClicked}
+                board={board}
+                currentMarker={currentPlayer.mark}
+                distortedMode={false}
+                distortedGhost={false} />
+
             <GameInfoDialog isOpen={isOpen || false} closeModal={handleCloseModal}>
                 {winner &&
                     <div className='flex flex-col items-center justify-center'>
