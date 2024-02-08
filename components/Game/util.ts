@@ -90,11 +90,16 @@ export interface MiniMaxProps {
 
 // MiniMax algorithm implementation
 export const minimax = (board: BoardType, isMaximizingPlayer: boolean, player1: GamePlayerProps, player2: GamePlayerProps): MiniMaxProps => {
+    // Check if player1 has won
     if (checkWinner(player1.mark, board)) {
         return { score: -1, position: null };
-    } else if (checkWinner(player2.mark, board)) {
+    }
+    // Check if player2 has won
+    else if (checkWinner(player2.mark, board)) {
         return { score: 1, position: null };
-    } else if (isDraw(board)) {
+    }
+    // Check if it's a draw
+    else if (isDraw(board)) {
         return { score: 0, position: null };
     }
 
@@ -102,12 +107,17 @@ export const minimax = (board: BoardType, isMaximizingPlayer: boolean, player1: 
         let bestScore = -Infinity;
         let bestPosition = null
 
+        // Iterate through each position on the board
         for (let position of Object.keys(board)) {
             if (board[position] === '') {
+                // Make a move for player2
                 board[position] = player2.mark;
+                // Recursively call minimax for the next move
                 let state = minimax(board, false, player1, player2);
+                // Undo the move
                 board[position] = '';
 
+                // Update the best score and position if the current move is better
                 if (state.score > bestScore) {
                     bestScore = state.score
                     bestPosition = position
@@ -120,12 +130,17 @@ export const minimax = (board: BoardType, isMaximizingPlayer: boolean, player1: 
         let bestScore = Infinity;
         let bestPosition = null
 
+        // Iterate through each position on the board
         for (let position of Object.keys(board)) {
             if (board[position] === '') {
+                // Make a move for player1
                 board[position] = player1.mark;
+                // Recursively call minimax for the next move
                 let state = minimax(board, true, player1, player2);
+                // Undo the move
                 board[position] = '';
 
+                // Update the best score and position if the current move is better
                 if (state.score < bestScore) {
                     bestScore = state.score
                     bestPosition = position

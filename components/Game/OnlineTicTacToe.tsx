@@ -13,8 +13,10 @@ import { checkWinner, isDraw, pauseGame, resetBoardOnline, resetScoreOnline, set
 interface Props {
     distortedMode: boolean
     gameRep: OnlineGameDataProps
-
 }
+
+
+// TODO: Change 'firstToWin' to 'TotalRounds' in the game history
 
 // Function to reset the game board
 export const resetBoard = (setBoard: (board: BoardType) => void) => {
