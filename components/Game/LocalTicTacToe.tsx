@@ -101,12 +101,21 @@ const LocalTicTacToe = ({ label, currentPlayer, player1, player2, setCurrentPlay
         }
     }
 
+
     useEffect(() => {
+        // Check if a player has won the game
         if (player1.score >= roundsToWin || player2.score >= roundsToWin) {
             updatePauseGame(true)
             openModal()
         }
-
+        // Check if player 1 has won the game
+        if (player1.score >= roundsToWin) {
+            setWinner(player1)
+        }
+        // Check if player 2 has won the game
+        if (player2.score >= roundsToWin) {
+            setWinner(player2)
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [player1.score, player2.score, roundsToWin])
 
