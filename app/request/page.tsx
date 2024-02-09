@@ -8,6 +8,8 @@ import MobilePlayersCard from "@/components/Request/MobilePlayersCard";
 import PlayerCard from "@/components/Request/PlayerCard";
 import { gameConfigReducer } from "@/components/Request/reducer";
 import { ViewModeType } from "@/components/Request/type";
+import Button from "@/components/common/Button";
+import ConfigNotFoundInfo from "@/components/common/ConfigNotFoundInfo";
 import Container from "@/components/common/Container";
 import MonitorOnlineStatus from "@/components/common/MonitorOnlineStatus";
 import Navbar from "@/components/common/Navbar";
@@ -207,9 +209,15 @@ export default function GameRequest() {
                                 {gameMode === "online" && <GameChat />}
 
                             </> :
-                            <div>
-                                <h1>Game mode or players not selected</h1>
-                            </div>
+                            <ConfigNotFoundInfo>
+                                <p >
+                                    Unfortunately you have not selected a player to play with, Please press the button provided below to go back to the home page and start a new game.
+                                    Apologies for the inconvenience, we are working hard to rectify this 😊😊😊😊😊.
+                                </p>
+                                <Button onClick={() => router.push("/")}>
+                                    Home page
+                                </Button>
+                            </ConfigNotFoundInfo>
                     }
 
                 </Container>

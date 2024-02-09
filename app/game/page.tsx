@@ -8,6 +8,7 @@ import ScoreBoard from "@/components/Game/ScoreBoard";
 import { useCurrentPlayer, useGameMode, useGameRepresentation, useOnlineGameId } from "@/components/Home/store";
 import { OnlineGameDataProps } from "@/components/Home/type";
 import Button from "@/components/common/Button";
+import ConfigNotFoundInfo from "@/components/common/ConfigNotFoundInfo";
 import Container from "@/components/common/Container";
 import MonitorOnlineStatus from "@/components/common/MonitorOnlineStatus";
 import NavItem from "@/components/common/NavItem";
@@ -97,9 +98,15 @@ export default function Game() {
           </Navbar>
 
           {!gameMode &&
-            <h1 className="text-2xl font-semibold text-center text-secondary mt-10">
-              No game mode selected
-            </h1>
+            <ConfigNotFoundInfo>
+              <p >
+                Unfortunately there is no configuration for this game session, Please press the button provided below to go back to the home page and start a new game.
+                Apologies for the inconvenience, we are working hard to rectify this 😊😊😊😊😊.
+              </p>
+              <Button onClick={() => router.push("/")}>
+                Home page
+              </Button>
+            </ConfigNotFoundInfo>
           }
           {gameRep && gameRep.player1 && gameRep.player2 && gameRep.config &&
             <>
