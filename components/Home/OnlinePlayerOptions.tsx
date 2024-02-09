@@ -77,9 +77,9 @@ const PlayerCard = ({ avatar, online, handleClick, id }: CompactPlayerCard) => {
             <div
                 className={`bg-card shadow-sm rounded-2xl py-3 px-12 flex flex-col items-center cursor-pointer space-y-10`}
                 onClick={() => handleClick && handleClick(id)}>
-                <span>{online ? 'Online' : 'Offline'}</span>
+                {/* <span>{online ? 'Online' : 'Offline'}</span> */}
                 <div className='relative'>
-                    <div className={`${online ? "bg-green-400" : "bg-gray-400"} w-5 h-5 absolute rounded-full -right-4 top-1`} />
+                    {/* <div className={`${online ? "bg-green-400" : "bg-gray-400"} w-5 h-5 absolute rounded-full -right-4 top-1`} /> */}
                     <UserAvatar {...avatar} className='w-[120px] h-[120px]' />
                 </div>
                 <h2 className='font-bold text-xl'>{avatar.name}</h2>

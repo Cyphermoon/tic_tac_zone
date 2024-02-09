@@ -24,11 +24,11 @@ const ProfileStatsCard = ({ matches, name, win, loss, handleChallenge, online }:
 
     return (
         <section className="bg-card p-5 w-full max-w-sm rounded-3xl flex flex-col items-start space-y-6">
-            {handleChallenge &&
+            {/* {handleChallenge &&
                 <span className={`text-sm mx-auto ${online ? 'text-green-500' : 'text-secondary'}`}>
                     {online ? 'Online' : 'Offline'}
                 </span>
-            }
+            } */}
 
             <div className='flex items-center justify-between w-full space-x-6 mb-5'>
                 <div className='text-center space-y-3'>

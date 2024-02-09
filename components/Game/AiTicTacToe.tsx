@@ -37,8 +37,9 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
 
     const [board, setBoard] = useState(_board);
     const [gameDraw, setGameDraw] = useState(false)
-    const [gameWon, setGameWon] = useState(false)
     const [winner, setWinner] = useState<GamePlayerProps>()
+    const [isThinking, setIsThinking] = useState(false)
+    const [timerDelay, setTimerDelay] = useState(3000)
 
     const isAITurn = currentPlayer.id === player2.id
     const aiDifficulty = player2.difficulty
@@ -126,12 +127,12 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
         return ""
     }, [board, handleEasyAiMove, player1, player2]);
 
+
     // Handle closing the game info modal
     function handleCloseModal(turn: "human" | "ai" | "switch" = "switch") {
         // Reset board and update player score  
         closeModal()
         setGameDraw(false)
-        setGameWon(false)
         updatePauseGame(false)
         updateMatchRound(0)
         updateTotalRounds(0)
@@ -158,38 +159,70 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
         }
         // Check if player 1 has won the game
         if (player1.score >= roundsToWin) {
-            setGameWon(true)
             setWinner(player1)
         }
         // Check if player 2 has won the game
         if (player2.score >= roundsToWin) {
-            setGameWon(true)
             setWinner(player2)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [player1.score, player2.score, roundsToWin])
 
-    // Perform AI move based on difficulty
+
+    // This useEffect hook is used to handle the AI's turn in the game
     useEffect(() => {
-        if (isAITurn && aiDifficulty === "easy") {
-            handleCellClicked(handleEasyAiMove())
-        } else if (isAITurn && aiDifficulty === "medium") {
-            handleCellClicked(handleMediumAiMove())
-        } else if (isAITurn && aiDifficulty === "hard") {
-            handleCellClicked(handleHardAiMove())
-        }
-    }, [aiDifficulty, handleCellClicked, handleEasyAiMove, handleHardAiMove, handleMediumAiMove, isAITurn])
+        // If it's not the AI's turn, we exit early
+        if (!isAITurn) return
+
+        // Declare a variable to hold the timer
+        let timer: NodeJS.Timeout
+        let _timerDelay = Math.floor(countdown * Math.random()) * 1000
+        setTimerDelay(_timerDelay)
+
+        // Set the isThinking state to true, indicating the AI is thinking
+        setIsThinking(true)
+
+        // Set a delay of 3 seconds to simulate the AI thinking
+        timer = setTimeout(() => {
+            // After the delay, we check the AI's difficulty level and make a move accordingly
+            if (isAITurn && aiDifficulty === "easy") {
+                handleCellClicked(handleEasyAiMove())
+            } else if (isAITurn && aiDifficulty === "medium") {
+                handleCellClicked(handleMediumAiMove())
+            } else if (isAITurn && aiDifficulty === "hard") {
+                handleCellClicked(handleHardAiMove())
+            }
+
+            // After making a move, we set the isThinking state to false
+            setIsThinking(false)
+
+            // Clear the timer
+            clearTimeout(timer)
+        }, _timerDelay)
+
+        // When the component unmounts, we clear the timer to prevent memory leaks
+        return () => clearTimeout(timer)
+
+        // The hook depends on these variables, and will run again if any of them change
+    }, [aiDifficulty, countdown, handleCellClicked, handleEasyAiMove, handleHardAiMove, handleMediumAiMove, isAITurn])
 
 
     return (
         <>
-            <TicTacToeBoard
-                label={label}
-                handleCellClicked={handleCellClicked}
-                board={board}
-                currentMarker={currentPlayer.mark}
-                distortedMode={false}
-                distortedGhost={false} />
+            <div>
+
+                <div className={`text-gray-800 text-sm animate-pulse mb-1.5 text-center ${isThinking && isAITurn ? "visible" : "invisible"}`}>
+                    {"I'm"} not thinking, just building suspense for {timerDelay / 1000} seconds
+                </div>
+                <TicTacToeBoard
+                    label={label}
+                    handleCellClicked={handleCellClicked}
+                    board={board}
+                    currentMarker={currentPlayer.mark}
+                    distortedMode={false}
+                    distortedGhost={false}
+                    className={`${currentPlayer.id === player2.id ? "pointer-events-none cursor-not-allowed" : ""}`} />
+            </div>
 
             <GameInfoDialog isOpen={isOpen || false} closeModal={handleCloseModal}>
                 {winner &&

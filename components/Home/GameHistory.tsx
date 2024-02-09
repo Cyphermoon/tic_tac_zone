@@ -1,7 +1,7 @@
 import { firestoreDB } from '@/firebase';
 import { CollectionReference, DocumentData, collection } from 'firebase/firestore';
 import { useEffect } from 'react';
-import { useCollectionDataOnce } from 'react-firebase-hooks/firestore';
+import { useCollectionData, useCollectionDataOnce } from 'react-firebase-hooks/firestore';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './TableUI';
 import { GameHistoryProps } from './type';
 
@@ -15,7 +15,7 @@ interface Props {
 
 const GameHistory = ({ currentPlayerId }: Props) => {
     const gameHistoryRef = collection(firestoreDB, 'users', currentPlayerId, 'history');
-    const [gameHistory, loading, error] = useCollectionDataOnce<GameHistoryProps>(gameHistoryRef as CollectionReference<GameHistoryProps, DocumentData>);
+    const [gameHistory, loading, error] = useCollectionData<GameHistoryProps>(gameHistoryRef as CollectionReference<GameHistoryProps, DocumentData>);
 
 
     if (loading) return <p>Loading...</p>;
