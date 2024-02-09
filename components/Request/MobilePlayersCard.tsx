@@ -17,7 +17,7 @@ interface Props {
 
 const MobilePlayersCard = ({ players, startGame, mode }: Props) => {
     return (
-        <section className='bg-card rounded-2xl w-full p-4 lg:hidden'>
+        <section className='bg-card rounded-2xl w-full max-w-sm p-4 lg:hidden'>
             <div className="flex items-center justify-between space-x-4">
                 <PlayerCard player={players[0]} />
                 <h3 className='text-xl font-bold font-mono' key={`visual`}>VS</h3>
@@ -25,12 +25,12 @@ const MobilePlayersCard = ({ players, startGame, mode }: Props) => {
 
             </div>
 
-            {
+            {/* {
                 mode === "edit" &&
                 <Button className='mx-auto !mt-6 !block' onClick={startGame} >
                     Start Game
                 </Button>
-            }
+            } */}
 
         </section>
     )
@@ -46,7 +46,7 @@ const PlayerCard = ({ player }: { player: Player }) => {
 
             <h2 className='text-2xl capitalize font-bold text-accent'>{player.mark}</h2>
 
-            <h4 className='text-lg font-normal'>{player.name}</h4>
+            <h4 className='text-lg font-normal text-center'>{player.name}</h4>
         </div>
     )
 }

@@ -5,7 +5,7 @@ import OnlinePlayerScore from "@/components/Game/OnlinePlayerScore";
 import OnlineTicTacToe from "@/components/Game/OnlineTicTacToe";
 import PlayerScore from "@/components/Game/PlayerScore";
 import ScoreBoard from "@/components/Game/ScoreBoard";
-import { useGameMode, useGameRepresentation, useOnlineGameId } from "@/components/Home/store";
+import { useCurrentPlayer, useGameMode, useGameRepresentation, useOnlineGameId } from "@/components/Home/store";
 import { OnlineGameDataProps } from "@/components/Home/type";
 import Button from "@/components/common/Button";
 import Container from "@/components/common/Container";
@@ -41,6 +41,8 @@ export default function Game() {
   const gameRep = isOnlineGame ? onlineGameData : localGameRep
 
   const [distortedGhost, setDistortedGhost] = useState<boolean | null>(null);
+  const zustandCurrentPlayerId = useCurrentPlayer(state => state.id)
+
 
 
   const toggleDistorted = () => {
@@ -51,6 +53,7 @@ export default function Game() {
       setDistortedGhost(false);
     }, 2000);
   };
+
 
   useEffect(() => {
     if (!loading) return

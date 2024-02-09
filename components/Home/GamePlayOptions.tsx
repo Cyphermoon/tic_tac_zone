@@ -1,11 +1,11 @@
 import { DEFAULT_GAME_CONFIG, _board } from '@/game_settings';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import AiOptions from './AiOptions';
 import LocalOption from './LocalOption';
 import OnlinePlayerOptions from './OnlinePlayerOptions';
 import { useAIDifficulty, useCurrentPlayer, useGameMode, useLocalPlayer, useOnlineGameId } from './store';
-import { LocalPlayersProps, OnlineGameDataProps, OnlinePlayerProps, PlayerProps } from './type';
+import { GameMode, LocalPlayersProps, OnlineGameDataProps, OnlinePlayerProps, PlayerProps } from './type';
 import { createChat, updateOrGetGame } from './util';
 
 
@@ -18,7 +18,11 @@ interface TabProps {
 
 const GamePlayOptions = () => {
     const router = useRouter();
-    const [selectedTab, setSelectedTab] = useState("online");
+    const gameMode = useGameMode(state => state.gameMode)
+    const [selectedTab, setSelectedTab] = useState(() => {
+        if (gameMode) return gameMode
+        return "online"
+    });
 
     const updateGameMode = useGameMode(state => state.updateGameMode)
     const updateAIDifficulty = useAIDifficulty(state => state.updateAIDifficulty)
@@ -26,7 +30,7 @@ const GamePlayOptions = () => {
     const updateOnlineGameId = useOnlineGameId(state => state.updateOnlineGameId)
     const currentPlayer = useCurrentPlayer(state => state)
 
-    function handleTabChange(tabName: string) {
+    function handleTabChange(tabName: any) {
         setSelectedTab(tabName)
     }
 

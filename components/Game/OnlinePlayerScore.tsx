@@ -45,6 +45,7 @@ const OnlinePlayerScore = ({ game, toggleDistortedMode }: Props) => {
         };
     }, [countdown, game.config.timer, game.pause, game.currentPlayer, game.player1, game.player2, onlineGameId, currentPlayerId, game.totalRounds]);
 
+
     return (
         <section className={`bg-card p-5 rounded-2xl  max-w-xl ${countdown ? "w-full" : "w-fit"} lg:mx-auto flex items-center justify-between`}>
             {game.currentPlayer ?
@@ -56,7 +57,8 @@ const OnlinePlayerScore = ({ game, toggleDistortedMode }: Props) => {
 
                     <div className='flex flex-col -mt-4 w-fit'>
                         <span className='text-sm text-center lg:text-left text-gray-500 font-light'>Current Player</span>
-                        <h3 className='text-lg lg:text-2xl font-medium text-gray-700'>{game.currentPlayer.name}</h3>
+                        <h3 className='text-lg lg:text-2xl font-medium text-gray-700'>{game.currentPlayer.name}
+                            <span className='text-gray-500 text-sm'>({game.currentPlayer.mark})</span></h3>
 
                         {game.config.distortedMode && gameMode !== "ai" &&
                             <button

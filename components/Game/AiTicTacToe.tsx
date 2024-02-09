@@ -156,6 +156,16 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
             updatePauseGame(true)
             openModal()
         }
+        // Check if player 1 has won the game
+        if (player1.score >= roundsToWin) {
+            setGameWon(true)
+            setWinner(player1)
+        }
+        // Check if player 2 has won the game
+        if (player2.score >= roundsToWin) {
+            setGameWon(true)
+            setWinner(player2)
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [player1.score, player2.score, roundsToWin])
 
@@ -168,7 +178,7 @@ const AiTicTacToe = ({ label, currentPlayer, countdown, player1, player2, setCur
         } else if (isAITurn && aiDifficulty === "hard") {
             handleCellClicked(handleHardAiMove())
         }
-    }, [aiDifficulty, gameDraw, gameWon, handleCellClicked, handleEasyAiMove, handleHardAiMove, handleMediumAiMove, isAITurn])
+    }, [aiDifficulty, handleCellClicked, handleEasyAiMove, handleHardAiMove, handleMediumAiMove, isAITurn])
 
 
     return (

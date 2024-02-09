@@ -15,9 +15,6 @@ interface Props {
     gameRep: OnlineGameDataProps
 }
 
-
-// TODO: Change 'firstToWin' to 'TotalRounds' in the game history
-
 // Function to reset the game board
 export const resetBoard = (setBoard: (board: BoardType) => void) => {
     setBoard(_board)
@@ -66,7 +63,8 @@ const OnlineTicTacToe = ({ gameRep, distortedMode }: Props) => {
         await updatePlayerStats(firestoreDB, gameRep.player1.id, true)
 
         await updatePlayerStats(firestoreDB, gameRep.player2.id, false);
-    }, [onlineGameId, gameRep.player1, gameRep.player2, gameRep.config]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
 
     const handlePlayer2Won = useCallback(async () => {
@@ -94,7 +92,8 @@ const OnlineTicTacToe = ({ gameRep, distortedMode }: Props) => {
         await updatePlayerStats(firestoreDB, gameRep.player2.id, true);
 
         await updatePlayerStats(firestoreDB, gameRep.player1.id, false);
-    }, [onlineGameId, gameRep.player1, gameRep.player2, gameRep.config])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
 
     const handleCellClicked = async (position: string) => {
@@ -163,7 +162,8 @@ const OnlineTicTacToe = ({ gameRep, distortedMode }: Props) => {
         else if (gameRep.player2.score >= gameRep.config.roundsToWin && currentPlayerId === gameRep.player2.id) {
             handlePlayer2Won()
         }
-    }, [currentPlayerId, gameRep.config.roundsToWin, gameRep.player1.id, gameRep.player1.score, gameRep.player2.id, gameRep.player2.score, handlePlayer1Won, handlePlayer2Won])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentPlayerId, gameRep.config.roundsToWin, gameRep.player1.id, gameRep.player1.score, gameRep.player2.id, gameRep.player2.score])
 
 
     return (
@@ -177,6 +177,7 @@ const OnlineTicTacToe = ({ gameRep, distortedMode }: Props) => {
                 player2Id={gameRep.player2.id}
                 board={board}
                 currentMarker={gameRep.currentPlayer.mark}
+                className={`${gameRep.currentPlayer.id === currentPlayerId ? 'cursor-pointer' : 'cursor-not-allowed animate-bounce blur-md pointer-events-none'}`}
             />
 
             {

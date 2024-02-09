@@ -7,6 +7,7 @@ type playerProps = {
     name: string
     score: number,
     imageURL?: string
+    mark: string
 }
 
 interface Props {
@@ -26,9 +27,9 @@ const ScoreBoard = ({ rounds, draws, player1, player2, bestOf }: Props) => {
             </div>
 
             <div className='flex justify-between items-center'>
-                <Profile id={player1.id} name={player1.name} score={player1.score} imageURL={player1.imageURL} />
+                <Profile id={player1.id} name={player1.name} score={player1.score} imageURL={player1.imageURL} mark={player1.mark} />
                 <h2 className={`text-3xl lg:text-6xl font-bold font-mono`}>VS</h2>
-                <Profile id={player2.id} name={player2.name} score={player2.score} imageURL={player2.imageURL} />
+                <Profile id={player2.id} name={player2.name} score={player2.score} imageURL={player2.imageURL} mark={player2.mark} />
             </div>
             {
                 bestOf &&
@@ -43,11 +44,12 @@ const ScoreBoard = ({ rounds, draws, player1, player2, bestOf }: Props) => {
 
 export default ScoreBoard
 
-export const Profile = ({ name, imageURL, score, id }: playerProps) => {
+export const Profile = ({ name, imageURL, score, id, mark }: playerProps) => {
     return (
         <div className='flex flex-col items-center space-y-8'>
             <div className='flex flex-col items-center'>
                 <UserAvatar name={name} id={id} imageUrl={imageURL} className='w-[66px] h-[66px] border-2 border-neutral-300' />
+                <span className='text-gray-400 text-lg'>{mark}</span>
                 <h4 className='font-normal lg:font-medium'>{name}</h4>
             </div>
 

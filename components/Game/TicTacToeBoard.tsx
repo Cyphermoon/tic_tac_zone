@@ -12,6 +12,7 @@ interface Props {
     distortedGhost: boolean
     player1Id?: string
     player2Id?: string
+    className?: string
 }
 
 interface CellProps {
@@ -23,7 +24,7 @@ interface CellProps {
 
 
 
-const TicTacToeBoard = ({ label, board, handleCellClicked, currentMarker, distortedGhost, player1Id, player2Id, distortedMode = false }: Props) => {
+const TicTacToeBoard = ({ label, board, handleCellClicked, currentMarker, distortedGhost, className, player1Id, player2Id, distortedMode = false }: Props) => {
     const gameMode = useGameMode(state => state.gameMode)
 
     let positions = Object.keys(board)
@@ -33,7 +34,7 @@ const TicTacToeBoard = ({ label, board, handleCellClicked, currentMarker, distor
     }
 
     return (
-        <section className='bg-card py-4 px-8 rounded-2xl w-full max-w-md space-y-10 min-h-[421px] flex flex-col items-center'>
+        <section className={`bg-card py-4 px-8 rounded-2xl w-full max-w-md space-y-10 min-h-[421px] flex flex-col items-center ${className}`}>
             <div className='bg-neutral-200 rounded-lg px-5 py-1.5 w-fit flex items-center space-x-2'>
                 <span> {label}</span>
             </div>
