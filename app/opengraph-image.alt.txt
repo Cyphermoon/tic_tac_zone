@@ -1,2 +1,1 @@
-Image: opengraph-image.png
-Alt Text: Company Logo and slogan
+Company Logo and slogan
